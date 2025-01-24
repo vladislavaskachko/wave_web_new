@@ -28,9 +28,39 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="config\dbConfig.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="controllers\authController.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="controllers\notificationController.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="public\index.html">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="public\notifications.html">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\authRoutes.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\notification.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\router.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="config\" />
+    <Folder Include="controllers\" />
+    <Folder Include="public\" />
+    <Folder Include="routes\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
   <ProjectExtensions>

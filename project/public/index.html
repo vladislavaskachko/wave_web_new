@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Авторизация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Авторизация</h1>
+
+    <form id="loginForm">
+        <label for="login">Логин:</label>
+        <input type="text" id="login" name="login" required><br><br>
+
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Войти</button>
+    </form>
+
+    <div id="errorMessage" class="error"></div>
+
+    <script>
+        // Обработчик формы авторизации
+        function handleLogin(event) {
+            event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+
+            var login = document.getElementById('login').value;
+            var password = document.getElementById('password').value;
+
+            // Создаем запрос для отправки данных на сервер
+            var request = new XMLHttpRequest();
+            request.open('POST', 'http://localhost:1337/auth/login', true);
+            request.setRequestHeader('Content-Type', 'application/json');
+
+            // Создаем данные для отправки
+            var data = JSON.stringify({
+                login: login,
+                password: password
+            });
+
+            // Обрабатываем ответ от сервера
+            request.onload = function () {
+                var response = JSON.parse(request.responseText);
+                if (request.status === 200) {
+                    // Если авторизация успешна, перенаправляем на страницу уведомлений
+                    window.location.href = '/notifications.html';  // Путь к странице уведомлений
+                } else {
+                    document.getElementById('errorMessage').textContent = response.message;
+                }
+            };
+
+            request.onerror = function () {
+                document.getElementById('errorMessage').textContent = 'Ошибка при отправке запроса!';
+            };
+
+            // Отправляем данные на сервер
+            request.send(data);
+        }
+
+        // Привязываем обработчик к форме
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    </script>
+
+</body>
+</html>
