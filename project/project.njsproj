@@ -37,6 +37,9 @@
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\adminNotifications.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\index.html">
       <SubType>Code</SubType>
     </Content>

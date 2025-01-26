@@ -8,6 +8,8 @@ router.post('/auth/login', authController.login);
 
 router.get('/api/notifications', notificationController.getNotifications);
 
+router.post('/api/notifications', notificationController.addNotification);
+
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
