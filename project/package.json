@@ -6,9 +6,16 @@
   "author": {
     "name": ""
   },
+  "scripts": {
+    "start": "node server.js"
+  },
   "devDependencies": {
     "eslint": "^8.21.0"
   },
-  "eslintConfig": {
+  "eslintConfig": {},
+  "dependencies": {
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0"
   }
 }

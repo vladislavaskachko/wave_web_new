@@ -31,21 +31,23 @@
     <Content Include="config\dbConfig.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\attendanceController.js" />
     <Content Include="controllers\authController.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="public\adminNotifications.html">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="controllers\supportController.js" />
+    <Content Include="public\attendance.html" />
     <Content Include="public\index.html">
       <SubType>Code</SubType>
     </Content>
     <Content Include="public\notifications.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\support.html" />
+    <Content Include="routes\attendance.js" />
     <Content Include="routes\authRoutes.js">
       <SubType>Code</SubType>
     </Content>
@@ -55,6 +57,7 @@
     <Content Include="routes\router.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="routes\support.js" />
     <Content Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />

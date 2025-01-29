@@ -5,8 +5,9 @@ const db = mysql.createConnection({
     host: 'localhost',       
     user: 'root',              
     password: '',              
-    database: 'project',       
-    port: 3306                
+    database: 'wave',       
+    port: 3306,
+    charset: 'utf8mb4'
 });
 
 db.connect(err => {

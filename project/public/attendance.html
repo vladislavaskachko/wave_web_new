@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посещаемость</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #f5f5f5;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Посещаемость</h1>
+    <table id="attendanceTable">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Группа</th>
+                <th>Отметка</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <p id="errorMessage" class="error"></p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('authToken'); // Получаем токен из localStorage или другого места хранения
+
+            if (!token) {
+                document.getElementById('errorMessage').textContent = 'Вы не авторизованы. Пожалуйста, войдите в систему.';
+                return;
+            }
+
+            fetch('/api/attendance', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}` // Передаём токен в заголовке Authorization
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.attendance) {
+                        const tableBody = document.querySelector('#attendanceTable tbody');
+                        tableBody.innerHTML = ''; // Очищаем таблицу
+
+                        data.attendance.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${item.date}</td>
+                                <td>${item.group}</td>
+                                <td>${item.visit}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    } else {
+                        document.getElementById('errorMessage').textContent = data.message || 'Ошибка загрузки данных';
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка:', err);
+                    document.getElementById('errorMessage').textContent = 'Ошибка при загрузке данных';
+                });
+        });
+    </script>
+</body>
+</html>

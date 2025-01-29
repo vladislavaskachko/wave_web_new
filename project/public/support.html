@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поддержка</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .section-picker {
+            margin-bottom: 20px;
+        }
+
+        .question {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+
+        .answer {
+            background-color: #0c447f;
+            color: white;
+            padding: 10px;
+            margin: 5px 20px;
+            border-radius: 8px;
+        }
+
+        .email {
+            margin-top: 50px;
+            text-align: center;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Поддержка</h1>
+
+    <select id="sectionPicker" class="section-picker">
+        <option value="">Выберите тему...</option>
+    </select>
+
+    <div id="questionsContainer"></div>
+
+    <div class="email">
+        <p>Если вы не нашли ответ на свой вопрос, напишите нам!</p>
+        <p>eamelnik_1@edu.hse.ru</p>
+        <p>Vdskachko@edu.hse.ru</p>
+    </div>
+
+    <script>
+        // Загружаем данные с сервера
+        fetch('/api/support')
+            .then(response => response.json())
+            .then(data => {
+                const sectionPicker = document.getElementById('sectionPicker');
+                const questionsContainer = document.getElementById('questionsContainer');
+
+                // Заполняем выпадающий список секциями
+                data.sections.forEach(section => {
+                    const option = document.createElement('option');
+                    option.value = section;
+                    option.textContent = section;
+                    sectionPicker.appendChild(option);
+                });
+
+                // Фильтруем вопросы по выбранной секции
+                sectionPicker.addEventListener('change', () => {
+                    const selectedSection = sectionPicker.value;
+                    const filteredQuestions = data.questions.filter(q => !selectedSection || q.section === selectedSection);
+
+                    questionsContainer.innerHTML = '';
+
+                    filteredQuestions.forEach(question => {
+                        const questionDiv = document.createElement('div');
+                        questionDiv.className = 'question';
+                        questionDiv.textContent = question.text;
+
+                        const answerDiv = document.createElement('div');
+                        answerDiv.className = 'answer';
+                        answerDiv.textContent = question.answer;
+
+                        questionsContainer.appendChild(questionDiv);
+                        questionsContainer.appendChild(answerDiv);
+                    });
+                });
+            })
+            .catch(err => {
+                console.error('Ошибка загрузки данных:', err);
+            });
+    </script>
+</body>
+</html>
