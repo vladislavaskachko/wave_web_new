@@ -54,8 +54,8 @@
                 var response = JSON.parse(request.responseText);
                 if (request.status === 200) {
                     // Если авторизация успешна, перенаправляем на страницу уведомлений
-                    window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
-                    window.location.href = '/support.html';  // Путь к странице уведомлений
+                    window.location.href = '/adminPayment.html';  // Путь к странице уведомлений
+                    window.location.href = '/adminPayment.html';  // Путь к странице уведомлений
                 } else {
                     document.getElementById('errorMessage').textContent = response.message;
                 }

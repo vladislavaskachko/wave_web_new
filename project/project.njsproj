@@ -38,7 +38,13 @@
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\paymentController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\supportController.js" />
+    <Content Include="public\adminPayment.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\attendance.html" />
     <Content Include="public\index.html">
       <SubType>Code</SubType>
@@ -52,6 +58,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\notification.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\payment.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\router.js">
