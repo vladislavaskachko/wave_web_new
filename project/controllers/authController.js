@@ -1,5 +1,5 @@
-const db = require('../config/dbConfig'); 
-//const jwt = require('jsonwebtoken'); // Добавляем JWT
+const jwt = require('jsonwebtoken'); // Подключаем JWT
+const db = require('../config/dbConfig');
 
 exports.login = function (req, res) {
     var login = req.body.login;
@@ -19,17 +19,17 @@ exports.login = function (req, res) {
             }
 
             if (results.length > 0) {
-
-                //const token = jwt.sign(
-                //    { userId: results[0].user_id }, // Создаём токен с user_id
-                //    'secret_key', // Заменить на безопасный ключ
-                //    { expiresIn: '2h' } // Токен действует 2 часа
-                //);
+                // Генерируем реальный JWT-токен
+                const token = jwt.sign(
+                    { userId: results[0].user_id }, // Кодируем user_id в токен
+                    'secret_key', // !! Замени на безопасный ключ !!
+                    { expiresIn: '2h' } // Токен истекает через 2 часа
+                );
 
                 return res.status(200).json({
                     message: 'Успешный вход',
-                    token: 'example-token', //token 
-                    fullName: results[0].user_fullname 
+                    token: token, // Отправляем токен на фронт
+                    fullName: results[0].user_fullname
                 });
             } else {
                 return res.status(401).json({ message: 'Неверный логин или пароль' });
