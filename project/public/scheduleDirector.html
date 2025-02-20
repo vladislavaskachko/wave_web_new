@@ -137,6 +137,30 @@
                 font-weight: bold;
             }
 
+        .delete-btn {
+            background: #ff000038; /* Полупрозрачный красный фон */
+            border: 2px solid #ff0000; /* Красная граница */
+            color: black;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 5px 10px; /* Паддинг для размера кнопки */
+            border-radius: 6px; /* Скругленные углы */
+        }
+
+            .delete-btn:hover {
+                background-color: #ff0000; /* Более яркий красный фон при наведении */
+                color: white; /* Белый текст при наведении */
+            }
+
+        .lesson-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            width: 100%;
+        }
+
+
         .day-cell {
             display: flex;
             flex-direction: column;
@@ -371,24 +395,20 @@
                         const lessonDiv = document.createElement("div");
                         lessonDiv.classList.add("lesson");
 
-                        // !!! ПРОВЕРЯЕМ, какой ключ содержит ID урока !!!
                         lessonDiv.dataset.lessonId = lesson.id || lesson.lesson_id || lesson._id;
                         console.log("lessonId, который сохранился:", lessonDiv.dataset.lessonId); // Проверка ID
 
                         lessonDiv.innerHTML = `
                 <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
                 <span class="group">${lesson.group_name}</span>
-                <div class="lesson-actions" style="display: none;">
-                    <button class="edit-btn">✏️</button>
-                    <button class="delete-btn">🗑️</button>
-                </div>
+                <button class="delete-btn" style="display: none;">Удалить 🗑️</button>
             `;
 
-                        // Показываем кнопки при клике
+                        // Показываем кнопку удаления при клике на урок
                         lessonDiv.addEventListener("click", function (event) {
                             event.stopPropagation();
-                            const actions = lessonDiv.querySelector(".lesson-actions");
-                            actions.style.display = actions.style.display === "none" ? "flex" : "none";
+                            const deleteBtn = lessonDiv.querySelector(".delete-btn");
+                            deleteBtn.style.display = deleteBtn.style.display === "none" ? "inline-block" : "none";
                         });
 
                         // Удаление урока
@@ -412,6 +432,7 @@
                     }
                 });
             }
+
 
 
             // Функция удаления урока
