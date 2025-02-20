@@ -1,0 +1,402 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<link rel="stylesheet" href="./css/styles.css">-->
+    <title>Расписание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .add-lesson-form {
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .add-lesson-form label {
+                display: inline-block;
+                margin-right: 10px;
+            }
+
+            .add-lesson-form select, .add-lesson-form input {
+                padding: 5px;
+                margin-right: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 12px;
+            }
+
+                .add-lesson-form input[type="time"] {
+                    width: 80px;
+                }
+
+            .add-lesson-form button {
+                padding: 5px 15px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+                .add-lesson-form button:hover {
+                    background-color: #45a049;
+                }
+
+        .schedule-container {
+            width: 100%;
+            padding: 0;
+        }
+
+        .schedule {
+            width: 100%;
+            max-width: 1200px; /* Чтобы было как у формы */
+            margin: 0 auto;
+            border-collapse: collapse; /* Убираем лишние отступы между ячейками */
+            background-color: #fff;
+        }
+
+            .schedule table {
+                width: 100%; /* Таблица занимает всю ширину */
+                border-collapse: collapse;
+            }
+
+            .schedule th, .schedule td {
+                border: 1px solid #ddd;
+                padding: 10px;
+                text-align: center;
+            }
+
+            .schedule th {
+                background-color: #f1f1f1;
+                font-weight: bold;
+            }
+
+        .day-cell {
+            min-height: 50px;
+        }
+
+
+            .schedule div {
+                padding: 10px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+                position: relative;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+        .schedule-header {
+            background-color: #f1f1f1;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .schedule .room {
+            background-color: #e0e0e0;
+            font-weight: bold;
+            text-align: center;
+            height: 50px;
+        }
+
+        .lesson {
+            background-color: #a2d9f7;
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 4px;
+            font-size: 12px;
+            word-wrap: break-word;
+            box-sizing: border-box;
+        }
+
+            .lesson span {
+                display: block;
+                text-align: center;
+            }
+
+            .lesson .time {
+                font-weight: bold;
+            }
+
+        .day-cell {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 10px;
+            gap: 5px;
+            overflow-y: auto;
+            min-height: 50px;
+        }
+
+            .day-cell .lesson {
+                width: 100%;
+                text-align: center;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Compact form for adding lessons -->
+        <div class="add-lesson-form">
+            <label for="groupPicker">Группа:</label>
+            <select id="groupPicker" required>
+                <!-- Groups will be populated dynamically -->
+            </select>
+
+            <label for="dayPicker">День:</label>
+            <select id="dayPicker" required>
+                <!-- Days will be populated dynamically -->
+            </select>
+
+            <label for="roomPicker">Класс:</label>
+            <select id="roomPicker" required>
+                <!-- Rooms will be populated dynamically -->
+            </select>
+
+            <label for="lessonStart">Начало:</label>
+            <input type="time" id="lessonStart" required>
+
+            <label for="lessonEnd">Конец:</label>
+            <input type="time" id="lessonEnd" required>
+
+            <button type="submit" onclick="addLesson(event)">Добавить</button>
+        </div>
+
+        <!-- Schedule grid (Таблица внутри .container) -->
+        <div class="schedule-container">
+            <table class="schedule" id="schedule"></table>
+        </div>
+
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            fetch('/api/director/groups')
+                .then(response => response.json())
+                .then(responseData => {
+                    console.log(responseData); 
+                    if (responseData && Array.isArray(responseData.groups)) {
+                        const groupPicker = document.getElementById("groupPicker");
+                        responseData.groups.forEach(group => {
+                            const option = document.createElement("option");
+                            option.value = group.id;
+                            option.textContent = group.name;
+                            groupPicker.appendChild(option);
+                        });
+                    } else {
+                        console.error('Ошибка: данные группы не содержат массив или имеют неверный формат', responseData);
+                    }
+                })
+                .catch(error => console.error('Ошибка при получении групп:', error));
+
+
+            fetch('/api/director/days')
+                .then(response => response.json())
+                .then(responseData => {  // Используем responseData вместо data
+                    console.log(responseData);  // Выводим весь ответ в консоль
+
+                    if (responseData && Array.isArray(responseData.days)) {
+                        const dayPicker = document.getElementById("dayPicker");
+                        responseData.days.forEach(day => {
+                            const option = document.createElement("option");
+                            option.value = day.id;
+                            option.textContent = day.name;
+                            dayPicker.appendChild(option);
+                        });
+                    } else {
+                        console.error('Ответ от сервера не содержит массив дней или имеет неверный формат');
+                    }
+                })
+                .catch(error => console.error('Ошибка при получении дней:', error));
+
+
+            fetch('/api/director/rooms')
+                .then(response => response.json())
+                .then(responseData => {
+                    console.log(responseData);
+                    if (responseData && Array.isArray(responseData.rooms)) {
+                        const roomPicker = document.getElementById("roomPicker");
+                        responseData.rooms.forEach(room => {
+                            const option = document.createElement("option");
+                            option.value = room.id;
+                            option.textContent = room.name;
+                            roomPicker.appendChild(option);
+                        });
+                    } else {
+                        console.error('Ошибка: ответ от сервера не содержит массив комнат или имеет неверный формат', responseData);
+                    }
+                })
+                .catch(error => console.error('Ошибка при получении комнат:', error));
+
+
+        });
+
+        function addLesson(event) {
+            event.preventDefault();
+
+            const groupId = document.getElementById("groupPicker").value;
+            const dayId = document.getElementById("dayPicker").value;
+            const startTime = document.getElementById("lessonStart").value;
+            const endTime = document.getElementById("lessonEnd").value;
+            const roomId = document.getElementById("roomPicker").value;
+
+            if (!groupId || !dayId || !startTime || !endTime || !roomId) {
+                alert("Заполните все поля");
+                return;
+            }
+
+            fetch('/api/lessons', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ groupId, dayId, startTime, endTime, roomId }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === "Урок добавлен успешно") {
+                        alert('Урок успешно добавлен');
+                        location.reload(); // Перезагружаем страницу, чтобы обновить таблицу
+                    } else {
+                        alert(data.message); // Показываем сообщение об ошибке (например, "Конфликт времени")
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при добавлении урока:', error);
+                    alert('Ошибка сервера. Попробуйте позже.');
+                });
+        }
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let roomsData = [];
+            let daysData = [];
+
+            function generateScheduleTable() {
+                const scheduleContainer = document.getElementById("schedule");
+                scheduleContainer.innerHTML = "";
+
+                let table = document.createElement("table");
+                table.setAttribute("width", "100%");
+                table.setAttribute("border", "1");
+
+                let thead = document.createElement("thead");
+                let headerRow = document.createElement("tr");
+
+                let emptyCell = document.createElement("th");
+                emptyCell.textContent = "Комнаты / Дни";
+                emptyCell.style.minWidth = "120px";
+                emptyCell.style.textAlign = "left";
+                headerRow.appendChild(emptyCell);
+
+                daysData.forEach(day => {
+                    let dayCell = document.createElement("th");
+                    dayCell.textContent = day.name;
+                    dayCell.style.minWidth = `${100 / daysData.length}%`; // Автоширина
+                    headerRow.appendChild(dayCell);
+                });
+
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
+
+                let tbody = document.createElement("tbody");
+
+                roomsData.forEach(room => {
+                    let row = document.createElement("tr");
+
+                    let roomCell = document.createElement("td");
+                    roomCell.textContent = room.name;
+                    roomCell.style.fontWeight = "bold";
+                    roomCell.style.whiteSpace = "nowrap"; // Не переносить текст
+                    row.appendChild(roomCell);
+
+                    daysData.forEach(day => {
+                        let dayCell = document.createElement("td");
+                        dayCell.dataset.room = room.id;
+                        dayCell.dataset.day = day.id;
+                        dayCell.style.minWidth = "100px";
+                        dayCell.style.height = "50px";
+                        row.appendChild(dayCell);
+                    });
+
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(tbody);
+                scheduleContainer.appendChild(table);
+
+                loadLessons();
+            }
+
+            function loadLessons() {
+                fetch('/api/lessons')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.lessons) {
+                            insertLessonsIntoTable(data.lessons);
+                        }
+                    })
+                    .catch(error => console.error('Ошибка загрузки уроков:', error));
+            }
+
+            function insertLessonsIntoTable(lessons) {
+                lessons.forEach(lesson => {
+                    const dayCell = document.querySelector(`td[data-day="${lesson.lesson_day_id}"][data-room="${lesson.lesson_room_id}"]`);
+                    if (dayCell) {
+                        const lessonDiv = document.createElement("div");
+                        lessonDiv.classList.add("lesson");
+                        lessonDiv.innerHTML = `
+                    <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
+                    <span class="group">${lesson.group_name}</span>
+                `;
+                        dayCell.appendChild(lessonDiv);
+                    } else {
+                        console.warn(`Не найдена ячейка для урока: День ${lesson.lesson_day_id}, Комната ${lesson.lesson_room_id}`);
+                    }
+                });
+            }
+
+            // Автообновление размеров при изменении окна
+            window.addEventListener("resize", () => {
+                document.querySelectorAll("td, th").forEach(cell => {
+                    cell.style.width = `${100 / daysData.length}%`;
+                });
+            });
+
+            // Загрузка данных и рендеринг
+            Promise.all([
+                fetch('/api/director/rooms').then(res => res.json()),
+                fetch('/api/director/days').then(res => res.json())
+            ])
+                .then(([roomsResponse, daysResponse]) => {
+                    roomsData = roomsResponse.rooms || [];
+                    daysData = daysResponse.days || [];
+                    generateScheduleTable();
+                })
+                .catch(error => console.error('Ошибка загрузки данных:', error));
+        });
+
+    </script>
+
+</body>
+</html>

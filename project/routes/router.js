@@ -7,6 +7,7 @@ var supportController = require('../controllers/supportController');
 var attendanceController = require('../controllers/attendanceController');
 var attTeacherController = require('../controllers/attTeacherController');
 var paymentController = require('../controllers/paymentController');
+var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 
 router.post('/auth/login', authController.login);
 
@@ -27,6 +28,13 @@ router.post('/api/teacher/updateAttendance', attTeacherController.updateAttendan
 router.post('/api/teacher/addLessonDate', attTeacherController.addLessonDate);
 router.get('/api/teacher/lessons', attTeacherController.getLessonsByGroup);
 router.post('/api/teacher/deleteLessonDate', attTeacherController.deleteLessonDate);
+
+router.get('/api/director/days', scheduleDirectorController.getDays);
+router.get('/api/director/rooms', scheduleDirectorController.getRooms);
+router.get('/api/director/groups', scheduleDirectorController.getGroups);
+router.post('/api/lessons', scheduleDirectorController.addLesson);
+router.get('/api/lessons', scheduleDirectorController.getLessons);
+
 
 
 

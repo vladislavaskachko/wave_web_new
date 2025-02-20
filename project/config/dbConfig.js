@@ -5,7 +5,7 @@ const db = mysql.createConnection({
     host: 'localhost',       
     user: 'root',              
     password: '',              
-    database: 'project',       
+    database: 'wave',       
     port: 3306,
     charset: 'utf8mb4'
 });

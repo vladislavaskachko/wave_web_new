@@ -42,7 +42,9 @@
     <Content Include="controllers\paymentController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\scheduleDirectorController.js" />
     <Content Include="controllers\supportController.js" />
+    <Content Include="css\styles.css" />
     <Content Include="public\adminPayment.html">
       <SubType>Code</SubType>
     </Content>
@@ -54,6 +56,7 @@
     <Content Include="public\notifications.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\scheduleDirector.html" />
     <Content Include="public\support.html" />
     <Content Include="routes\attendance.js" />
     <Content Include="routes\attTeacher.js" />
@@ -77,6 +80,7 @@
   <ItemGroup>
     <Folder Include="config\" />
     <Folder Include="controllers\" />
+    <Folder Include="css\" />
     <Folder Include="public\" />
     <Folder Include="routes\" />
   </ItemGroup>
