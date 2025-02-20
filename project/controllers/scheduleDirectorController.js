@@ -145,3 +145,25 @@ exports.getLessons = (req, res) => {
     });
 };
 
+exports.deleteLesson = (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ error: "Не передан ID урока" });
+    }
+
+    db.query("DELETE FROM lesson WHERE lesson_id = ?", [id], (err, result) => {
+        if (err) {
+            console.error("Ошибка удаления урока:", err);
+            return res.status(500).json({ error: "Ошибка сервера" });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Урок не найден" });
+        }
+
+        res.json({ message: "Урок успешно удалён" });
+    });
+};
+
+

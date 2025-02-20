@@ -352,6 +352,7 @@
                 fetch('/api/lessons')
                     .then(response => response.json())
                     .then(data => {
+                        console.log("Полученные данные уроков:", data);
                         if (data.lessons) {
                             insertLessonsIntoTable(data.lessons);
                         }
@@ -360,21 +361,88 @@
             }
 
             function insertLessonsIntoTable(lessons) {
+                console.log("Данные уроков для вставки в таблицу:", lessons); // Отладка
+
                 lessons.forEach(lesson => {
+                    console.log("Текущий урок:", lesson); // Проверяем структуру каждого урока
+
                     const dayCell = document.querySelector(`td[data-day="${lesson.lesson_day_id}"][data-room="${lesson.lesson_room_id}"]`);
                     if (dayCell) {
                         const lessonDiv = document.createElement("div");
                         lessonDiv.classList.add("lesson");
+
+                        // !!! ПРОВЕРЯЕМ, какой ключ содержит ID урока !!!
+                        lessonDiv.dataset.lessonId = lesson.id || lesson.lesson_id || lesson._id;
+                        console.log("lessonId, который сохранился:", lessonDiv.dataset.lessonId); // Проверка ID
+
                         lessonDiv.innerHTML = `
-                    <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
-                    <span class="group">${lesson.group_name}</span>
-                `;
+                <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
+                <span class="group">${lesson.group_name}</span>
+                <div class="lesson-actions" style="display: none;">
+                    <button class="edit-btn">✏️</button>
+                    <button class="delete-btn">🗑️</button>
+                </div>
+            `;
+
+                        // Показываем кнопки при клике
+                        lessonDiv.addEventListener("click", function (event) {
+                            event.stopPropagation();
+                            const actions = lessonDiv.querySelector(".lesson-actions");
+                            actions.style.display = actions.style.display === "none" ? "flex" : "none";
+                        });
+
+                        // Удаление урока
+                        lessonDiv.querySelector(".delete-btn").addEventListener("click", function (event) {
+                            event.stopPropagation();
+                            const lessonId = lessonDiv.dataset.lessonId;
+                            console.log("Удаление урока с ID:", lessonId); // Проверяем, передается ли ID
+                            if (!lessonId) {
+                                console.error("Ошибка: отсутствует ID урока");
+                                alert("Ошибка: ID урока не найден.");
+                                return;
+                            }
+                            if (confirm("Вы уверены, что хотите удалить этот урок?")) {
+                                deleteLesson(lessonId, lessonDiv);
+                            }
+                        });
+
                         dayCell.appendChild(lessonDiv);
                     } else {
                         console.warn(`Не найдена ячейка для урока: День ${lesson.lesson_day_id}, Комната ${lesson.lesson_room_id}`);
                     }
                 });
             }
+
+
+            // Функция удаления урока
+            function deleteLesson(lessonId, lessonElement) {
+                console.log("Отправка DELETE запроса на ID:", lessonId); // Проверка перед запросом
+
+                fetch(`/api/lessons/${lessonId}`, {
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Ошибка HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Ответ сервера:", data);
+                        if (data.message === "Урок успешно удалён") {
+                            lessonElement.remove(); // Удаляем урок из интерфейса
+                            alert(data.message); // Показываем сообщение об успехе
+                        } else {
+                            alert("Ошибка при удалении: " + (data.message || "Неизвестная ошибка"));
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Ошибка при удалении урока:", error);
+                        alert("Ошибка сервера. Попробуйте позже.");
+                    });
+
+            }
+
 
             // Автообновление размеров при изменении окна
             window.addEventListener("resize", () => {

@@ -34,6 +34,7 @@ router.get('/api/director/rooms', scheduleDirectorController.getRooms);
 router.get('/api/director/groups', scheduleDirectorController.getGroups);
 router.post('/api/lessons', scheduleDirectorController.addLesson);
 router.get('/api/lessons', scheduleDirectorController.getLessons);
+router.delete('/api/lessons/:id', scheduleDirectorController.deleteLesson);
 
 
 
