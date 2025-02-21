@@ -8,6 +8,7 @@ var attendanceController = require('../controllers/attendanceController');
 var attTeacherController = require('../controllers/attTeacherController');
 var paymentController = require('../controllers/paymentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
+var scheduleStudentController = require('../controllers/scheduleStudentController');
 
 router.post('/auth/login', authController.login);
 
@@ -36,6 +37,7 @@ router.post('/api/lessons', scheduleDirectorController.addLesson);
 router.get('/api/lessons', scheduleDirectorController.getLessons);
 router.delete('/api/lessons/:id', scheduleDirectorController.deleteLesson);
 
+router.get('/api/student/lessons', scheduleStudentController.getLessons);
 
 
 

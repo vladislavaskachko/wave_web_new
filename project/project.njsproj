@@ -42,6 +42,7 @@
     <Content Include="controllers\paymentController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\scheduleStudentController.js" />
     <Content Include="controllers\scheduleDirectorController.js" />
     <Content Include="controllers\supportController.js" />
     <Content Include="css\styles.css" />
@@ -56,6 +57,7 @@
     <Content Include="public\notifications.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\scheduleStudent.html" />
     <Content Include="public\scheduleDirector.html" />
     <Content Include="public\support.html" />
     <Content Include="routes\attendance.js" />

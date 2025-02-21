@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+п»їconst mysql = require('mysql2');
 
 
 const db = mysql.createConnection({
@@ -12,10 +12,10 @@ const db = mysql.createConnection({
 
 db.connect(err => {
     if (err) {
-        console.error('Ошибка подключения к базе данных:', err);
+        console.error('РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С…:', err);
         process.exit(1); 
     }
-    console.log('Подключение к базе данных успешно');
+    console.log('РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р±Р°Р·Рµ РґР°РЅРЅС‹С… СѓСЃРїРµС€РЅРѕ');
 });
 
 module.exports = db;

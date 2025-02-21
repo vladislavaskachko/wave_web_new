@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: left;
+        }
+
+        .day {
+            margin: 10px 0;
+            padding: 10px;
+            background: #ddd;
+            border-radius: 5px;
+        }
+
+        .day-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .schedule {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-item {
+            display: grid;
+            grid-template-columns: 120px 100px 100px 200px 1fr; /* Фиксированная ширина для времени и группы, а для курса и учителя больше пространства */
+            gap: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+
+            .schedule-item:last-child {
+                border-bottom: none;
+            }
+
+            .schedule-item span {
+                word-wrap: break-word; /* Разрешаем перенос текста */
+                word-break: break-word; /* Обеспечивает корректный перенос слов */
+                white-space: normal; /* Разрешаем перенос строк */
+            }
+    </style>
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>Расписание</h1>
+        <!-- Здесь будут динамически добавляться дни недели -->
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Загружаем дни недели с сервера
+            fetch('/api/director/days') // Замените на свой API-эндпоинт для получения дней
+                .then(response => response.json())
+                .then(responseData => {
+                    if (responseData && Array.isArray(responseData.days)) {
+                        // Для каждого дня недели создаем блок
+                        const container = document.querySelector('.container');
+
+                        responseData.days.forEach(day => {
+                            // Создаем блок для дня
+                            const dayDiv = document.createElement('div');
+                            dayDiv.classList.add('day');
+
+                            // Заголовок с названием дня
+                            const dayNameDiv = document.createElement('div');
+                            dayNameDiv.classList.add('day-name');
+                            dayNameDiv.textContent = day.name; // Название дня из данных
+
+                            // Блок с расписанием для этого дня
+                            const scheduleDiv = document.createElement('div');
+                            scheduleDiv.classList.add('schedule');
+
+                            // Загружаем уроки для дня, если они есть (по желанию)
+                            loadLessonsForDay(day.id, scheduleDiv).then(lessonsExist => {
+                                if (lessonsExist) {
+                                    // Если уроки есть, добавляем их в контейнер
+                                    dayDiv.appendChild(dayNameDiv);
+                                    dayDiv.appendChild(scheduleDiv);
+                                    container.appendChild(dayDiv);
+                                }
+                            });
+                        });
+                    } else {
+                        console.error('Ошибка: данные дней недели не содержат массив или имеют неверный формат');
+                    }
+                })
+                .catch(error => console.error('Ошибка при получении дней недели:', error));
+        });
+
+        // Функция для загрузки уроков для конкретного дня
+        function loadLessonsForDay(dayId, scheduleDiv) {
+            const token = localStorage.getItem('authToken'); // Получаем токен из localStorage
+
+            return new Promise((resolve) => {
+                if (!token) {
+                    document.getElementById('errorMessage').textContent = 'Вы не авторизованы. Пожалуйста, войдите в систему.';
+                    resolve(false);
+                    return;
+                }
+
+                fetch(`/api/student/lessons?dayId=${dayId}`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}` // Передаем токен в заголовке
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.lessons && Array.isArray(data.lessons) && data.lessons.length > 0) {
+                            data.lessons.forEach(lesson => {
+                                const scheduleItem = document.createElement('div');
+                                scheduleItem.classList.add('schedule-item');
+
+                                scheduleItem.innerHTML = `
+                                    <span>${lesson.time}</span>
+                                    <span>${lesson.room}</span>
+                                    <span>${lesson.group}</span>
+                                    <span>${lesson.teacher_name}</span>
+                                    <span>${lesson.subject}</span>
+                                `;
+                                scheduleDiv.appendChild(scheduleItem);
+                            });
+                            resolve(true); // Уроки есть, возвращаем true
+                        } else {
+                            resolve(false); // Уроков нет, возвращаем false
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при получении уроков:', error);
+                        resolve(false);
+                    });
+            });
+        }
+    </script>
+
+</body>
+</html>
