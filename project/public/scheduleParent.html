@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day {
+            margin: 10px 0;
+            padding: 10px;
+            background: #ddd;
+            border-radius: 5px;
+        }
+
+        .day-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .schedule {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .schedule-item {
+            display: grid;
+            grid-template-columns: 120px 100px 100px 200px 150px 1fr;
+            gap: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #ccc;
+        }
+
+            .schedule-item:last-child {
+                border-bottom: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            Расписание
+            <select id="childSelector"></select>
+        </h1>
+        <div id="scheduleContainer"></div>
+    </div>
+
+    <script>
+        let selectedStudentId = null;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem("authToken");
+
+            if (!token) {
+                console.error("Нет токена, авторизация не выполнена.");
+                return;
+            }
+
+            fetch('/api/parent/children', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Ошибка HTTP: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const selector = document.getElementById("childSelector");
+
+                    if (!data.children || data.children.length === 0) {
+                        console.error("Дети не найдены или список пуст.");
+                        return;
+                    }
+
+                    data.children.forEach(child => {
+                        let option = document.createElement("option");
+                        option.value = child.id;
+                        option.textContent = child.name;
+                        selector.appendChild(option);
+                    });
+
+                    // Выбираем первого ребенка по умолчанию
+                    selectedStudentId = selector.value;
+                    loadSchedule();
+
+                    selector.addEventListener("change", function () {
+                        selectedStudentId = this.value;
+                        loadSchedule();
+                    });
+                })
+                .catch(error => console.error("Ошибка при загрузке детей:", error));
+        });
+
+        function loadSchedule() {
+            fetch('/api/director/days')
+                .then(response => response.json())
+                .then(responseData => {
+                    if (responseData && Array.isArray(responseData.days)) {
+                        const container = document.getElementById('scheduleContainer');
+                        container.innerHTML = ""; // Очищаем расписание
+
+                        responseData.days.forEach(day => {
+                            const dayDiv = document.createElement('div');
+                            dayDiv.classList.add('day');
+
+                            const dayNameDiv = document.createElement('div');
+                            dayNameDiv.classList.add('day-name');
+                            dayNameDiv.textContent = day.name;
+
+                            const scheduleDiv = document.createElement('div');
+                            scheduleDiv.classList.add('schedule');
+
+                            loadLessonsForDay(day.id, scheduleDiv).then(lessonsExist => {
+                                if (lessonsExist) {
+                                    dayDiv.appendChild(dayNameDiv);
+                                    dayDiv.appendChild(scheduleDiv);
+                                    container.appendChild(dayDiv);
+                                }
+                            });
+                        });
+                    } else {
+                        console.error('Ошибка: данные дней недели не содержат массив или имеют неверный формат');
+                    }
+                })
+                .catch(error => console.error('Ошибка при получении дней недели:', error));
+        }
+
+        function loadLessonsForDay(dayId, scheduleDiv) {
+            const token = localStorage.getItem('authToken');
+
+            return new Promise((resolve) => {
+                if (!token || !selectedStudentId) {
+                    console.error("Ошибка: нет токена или studentId не выбран.");
+                    resolve(false);
+                    return;
+                }
+
+                fetch(`/api/parent/lessons?dayId=${dayId}&studentId=${selectedStudentId}`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.lessons && Array.isArray(data.lessons) && data.lessons.length > 0) {
+                            data.lessons.forEach(lesson => {
+                                const scheduleItem = document.createElement('div');
+                                scheduleItem.classList.add('schedule-item');
+
+                                scheduleItem.innerHTML = `
+                                        <span>${lesson.time}</span>
+                                        <span>${lesson.room}</span>
+                                        <span>${lesson.group}</span>
+                                        <span>${lesson.teacher_name}</span>
+                                        <span>${lesson.subject}</span>
+                                    `;
+                                scheduleDiv.appendChild(scheduleItem);
+                            });
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка при получении уроков:', error);
+                        resolve(false);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
