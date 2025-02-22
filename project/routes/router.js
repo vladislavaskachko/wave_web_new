@@ -10,6 +10,8 @@ var paymentController = require('../controllers/paymentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
+var settingsController = require('../controllers/settingsController');
+
 
 router.post('/auth/login', authController.login);
 
@@ -44,6 +46,12 @@ router.get('/api/parent/children', scheduleParentController.getChildren);
 router.get('/api/parent/lessons', scheduleParentController.getLessons);
 /*router.get('/api/parent/schedule', scheduleParentController.getParentSchedule);*/
 
+router.get('/api/settings/schemes', settingsController.getSchemes);
+router.post('/api/settings/add-scheme', settingsController.addScheme);
+router.get('/api/settings/delete-scheme/:scheme_id', settingsController.deleteScheme);
+router.get('/api/settings/sizes', settingsController.getSizes);
+router.post('/api/settings/add-size', settingsController.addSize);
+router.get('/api/settings/delete-size/:size_id', settingsController.deleteSize);
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

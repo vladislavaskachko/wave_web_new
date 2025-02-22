@@ -45,6 +45,9 @@
     <Content Include="controllers\scheduleParentController.js" />
     <Content Include="controllers\scheduleStudentController.js" />
     <Content Include="controllers\scheduleDirectorController.js" />
+    <Content Include="controllers\settingsController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\supportController.js" />
     <Content Include="css\styles.css" />
     <Content Include="public\adminPayment.html">
@@ -61,6 +64,9 @@
     <Content Include="public\scheduleParent.html" />
     <Content Include="public\scheduleStudent.html" />
     <Content Include="public\scheduleDirector.html" />
+    <Content Include="public\settings.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\support.html" />
     <Content Include="routes\attendance.js" />
     <Content Include="routes\attTeacher.js" />
@@ -74,6 +80,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\router.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\settings.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\support.js" />

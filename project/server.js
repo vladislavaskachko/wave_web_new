@@ -6,6 +6,9 @@ const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 1337;
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(bodyParser.json());
 
 const router = require('./routes/router');

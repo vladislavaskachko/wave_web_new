@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки курсов</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            text-align: center;
+        }
+
+        /* Секция настроек */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+            form label {
+                margin-bottom: 5px;
+            }
+
+            form input {
+                padding: 10px;
+                margin-bottom: 10px;
+                font-size: 16px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            form button {
+                padding: 10px 15px;
+                background-color: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                form button:hover {
+                    background-color: #218838;
+                }
+
+        /* Таблицы */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+            table th, table td {
+                padding: 10px;
+                border: 1px solid #ddd;
+                text-align: center;
+            }
+
+            table th {
+                background-color: #f8f9fa;
+            }
+
+        button.delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+            button.delete-btn:hover {
+                background-color: #c82333;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Настройки курсов</h1>
+
+        <!-- Секция для схем -->
+        <div class="settings-section">
+            <h2>Схемы</h2>
+            <form id="addSchemeForm">
+                <label for="schemeValue">Добавить схему:</label>
+                <input type="text" id="schemeValue" name="schemeValue" placeholder="Введите название схемы" required>
+                <button type="submit">Добавить</button>
+            </form>
+            <h3>Существующие схемы</h3>
+            <table id="schemesTable">
+                <thead>
+                    <tr>
+                        <th>Название схемы</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Схемы будут добавляться сюда через JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Секция для размеров -->
+        <div class="settings-section">
+            <h2>Размеры</h2>
+            <form id="addSizeForm">
+                <label for="sizeValue">Добавить размер:</label>
+                <input type="number" id="sizeValue" name="sizeValue" placeholder="Введите размер" required>
+                <button type="submit">Добавить</button>
+            </form>
+            <h3>Существующие размеры</h3>
+            <table id="sizesTable">
+                <thead>
+                    <tr>
+                        <th>Размер</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Размеры будут добавляться сюда через JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элементы формы и таблиц
+            const addSchemeForm = document.getElementById('addSchemeForm');
+            const addSizeForm = document.getElementById('addSizeForm');
+            const schemesTableBody = document.getElementById('schemesTable').getElementsByTagName('tbody')[0];
+            const sizesTableBody = document.getElementById('sizesTable').getElementsByTagName('tbody')[0];
+
+            // Загружаем схемы и размеры при загрузке страницы
+            loadSchemes();
+            loadSizes();
+
+            // Добавление новой схемы
+            addSchemeForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const schemeValue = document.getElementById('schemeValue').value;
+
+                fetch('/api/settings/add-scheme', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ scheme_value: schemeValue })
+                })
+                .then(response => response.json())
+                .then(() => {
+                    loadSchemes();  // Перезагружаем список схем
+                    addSchemeForm.reset();
+                })
+                .catch(error => console.error('Ошибка:', error));
+            });
+
+            // Добавление нового размера
+            addSizeForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const sizeValue = document.getElementById('sizeValue').value;
+
+                fetch('/api/settings/add-size', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ size_value: sizeValue })
+                })
+                .then(response => response.json())
+                .then(() => {
+                    loadSizes();  // Перезагружаем список размеров
+                    addSizeForm.reset();
+                })
+                .catch(error => console.error('Ошибка:', error));
+            });
+
+            // Загрузка схем
+            function loadSchemes() {
+                fetch('/api/settings/schemes')
+                    .then(response => response.json())
+                    .then(schemes => {
+                        schemesTableBody.innerHTML = '';  // Очищаем таблицу
+                        schemes.forEach(scheme => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${scheme.scheme_value}</td>
+                                <td><button class="delete-btn" onclick="deleteScheme(${scheme.scheme_id})">Удалить</button></td>
+                            `;
+                            schemesTableBody.appendChild(row);
+                        });
+                    });
+            }
+
+            // Загрузка размеров
+            function loadSizes() {
+                fetch('/api/settings/sizes')
+                    .then(response => response.json())
+                    .then(sizes => {
+                        sizesTableBody.innerHTML = '';  // Очищаем таблицу
+                        sizes.forEach(size => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${size.size_value}</td>
+                                <td><button class="delete-btn" onclick="deleteSize(${size.size_id})">Удалить</button></td>
+                            `;
+                            sizesTableBody.appendChild(row);
+                        });
+                    });
+            }
+
+            // Удаление схемы
+            window.deleteScheme = function(schemeId) {
+                fetch(`/api/settings/delete-scheme/${schemeId}`, {
+                    method: 'GET',
+                })
+                .then(() => {
+                    loadSchemes();  // Перезагружаем список схем
+                })
+                .catch(error => console.error('Ошибка при удалении схемы:', error));
+            };
+
+            // Удаление размера
+            window.deleteSize = function(sizeId) {
+                fetch(`/api/settings/delete-size/${sizeId}`, {
+                    method: 'GET',
+                })
+                .then(() => {
+                    loadSizes();  // Перезагружаем список размеров
+                })
+                .catch(error => console.error('Ошибка при удалении размера:', error));
+            };
+        });</script>
+</body>
+</html>
