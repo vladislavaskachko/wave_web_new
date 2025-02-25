@@ -10,6 +10,7 @@ var paymentController = require('../controllers/paymentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
+var gradeStudentConroller = require('../controllers/gradeStudentController');
 var settingsController = require('../controllers/settingsController');
 
 
@@ -44,7 +45,8 @@ router.get('/api/student/lessons', scheduleStudentController.getLessons);
 
 router.get('/api/parent/children', scheduleParentController.getChildren);
 router.get('/api/parent/lessons', scheduleParentController.getLessons);
-/*router.get('/api/parent/schedule', scheduleParentController.getParentSchedule);*/
+
+router.get('/api/student/grades', gradeStudentConroller.getGrades);
 
 router.get('/api/settings/schemes', settingsController.getSchemes);
 router.post('/api/settings/add-scheme', settingsController.addScheme);
