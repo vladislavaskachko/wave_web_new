@@ -11,6 +11,12 @@ var scheduleDirectorController = require('../controllers/scheduleDirectorControl
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
 var settingsController = require('../controllers/settingsController');
+var courseController = require('../controllers/courseController');
+var groupController = require('../controllers/groupController');
+var teacherController = require('../controllers/teacherController');
+var studentController = require('../controllers/studentController');
+var userController = require('../controllers/userController')
+const parentsController = require('../controllers/parentsController');
 
 
 router.post('/auth/login', authController.login);
@@ -52,6 +58,26 @@ router.get('/api/settings/delete-scheme/:scheme_id', settingsController.deleteSc
 router.get('/api/settings/sizes', settingsController.getSizes);
 router.post('/api/settings/add-size', settingsController.addSize);
 router.get('/api/settings/delete-size/:size_id', settingsController.deleteSize);
+
+router.get('/api/courses', courseController.getCourses);  
+router.post('/api/courses', courseController.addCourse);  
+router.put('/api/courses', courseController.updateCourse); 
+router.delete('/api/courses/:course_id', courseController.deleteCourse); 
+
+router.get('/api/groups', groupController.getGroups);  
+router.post('/api/groups', groupController.addGroup);  
+router.put('/api/groups', groupController.updateGroup); 
+router.delete('/api/groups/:group_id', groupController.deleteGroup);
+
+router.get('/api/teachers', teacherController.getTeachers);
+
+router.get('/api/students', studentController.getStudents);
+
+router.get('/api/parents', parentsController.getParents);
+
+router.get('/api/users', userController.getUsers);
+router.post('/api/users/add', userController.addUser);
+router.delete('/api/users/:id', userController.deleteUser);
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

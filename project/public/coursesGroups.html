@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление курсами и группами</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .create-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .course-card, .group-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            background: #ffffff;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Курсы и Группы</h1>
+        <button class="create-btn" onclick="toggleCourseForm()">Создать курс</button>
+
+        <div id="course-form" class="hidden">
+            <h3>Новый курс</h3>
+            <input type="text" id="course-name" placeholder="Название курса" required>
+            <label for="scheme-select">Выберите схему:</label>
+            <select id="scheme-select" required>
+                <!-- Схемы будут загружены сюда -->
+            </select>
+            <label for="size-select">Выберите размер группы:</label>
+            <select id="size-select" required>
+                <!-- Размеры группы будут загружены сюда -->
+            </select>
+            <label for="course-price">Стоимость курса:</label>
+            <input type="number" id="course-price" placeholder="Стоимость" required>
+            <label for="course-time">Количество часов:</label>
+            <input type="number" id="course-time" placeholder="Часы" required>
+            <button onclick="createCourse()">Создать</button>
+        </div>
+
+        <div id="courses-list"></div>
+
+        <!-- Форма для создания группы -->
+        <div id="group-form" class="hidden">
+            <h3>Новая группа для курса <span id="course-name-placeholder"></span></h3>
+            <label for="teacher-select">Выберите учителя:</label>
+            <select id="teacher-select" required>
+                <!-- Учителя будут загружены сюда -->
+            </select>
+            <label for="group-name">Название группы:</label>
+            <input type="text" id="group-name" required>
+            <input type="hidden" id="course-id-placeholder">
+            <button onclick="createGroup()">Создать группу</button>
+        </div>
+    </div>
+
+    <script>
+        // Функция для загрузки данных схем
+        async function fetchSchemes() {
+            const response = await fetch('/api/settings/schemes');
+            const schemes = await response.json();
+            const schemeSelect = document.getElementById('scheme-select');
+            schemeSelect.innerHTML = ''; // Очистим текущие данные в селекте
+
+            schemes.forEach(scheme => {
+                const option = document.createElement('option');
+                option.value = scheme.scheme_id;
+                option.textContent = scheme.scheme_value;
+                schemeSelect.appendChild(option);
+            });
+        }
+
+        // Функция для загрузки данных размеров
+        async function fetchSizes() {
+            const response = await fetch('/api/settings/sizes');
+            const sizes = await response.json();
+            const sizeSelect = document.getElementById('size-select');
+            sizeSelect.innerHTML = ''; // Очистим текущие данные в селекте
+
+            sizes.forEach(size => {
+                const option = document.createElement('option');
+                option.value = size.size_id;
+                option.textContent = size.size_value;
+                sizeSelect.appendChild(option);
+            });
+        }
+
+        // Функция для загрузки данных учителей
+        async function fetchTeachers() {
+            const response = await fetch('/api/teachers');
+            const teachers = await response.json();
+            const teacherSelect = document.getElementById('teacher-select');
+            teacherSelect.innerHTML = ''; // Очистим текущие данные в селекте
+
+            teachers.forEach(teacher => {
+                const option = document.createElement('option');
+                option.value = teacher.teacher_id;
+                option.textContent = `${teacher.user_surname} ${teacher.user_name} ${teacher.user_patronymic}`;
+                teacherSelect.appendChild(option);
+            });
+        }
+
+        // Функция для создания курса
+        async function createCourse() {
+            const courseName = document.getElementById('course-name').value;
+            const schemeId = document.getElementById('scheme-select').value;
+            const sizeId = document.getElementById('size-select').value;
+            const coursePrice = document.getElementById('course-price').value;
+            const courseTime = document.getElementById('course-time').value;
+
+            if (!courseName || !schemeId || !sizeId || !coursePrice || !courseTime) {
+                alert("Все поля должны быть заполнены!");
+                return;
+            }
+
+            await fetch('/api/courses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    course_name: courseName,
+                    course_scheme_id: schemeId,
+                    course_size_id: sizeId,
+                    course_price: coursePrice,
+                    course_time: courseTime
+                })
+            });
+
+            fetchCourses(); // Обновим список курсов после добавления
+        }
+
+        // Функция для создания группы
+        async function createGroup() {
+            const teacherId = document.getElementById('teacher-select').value;
+            const groupName = document.getElementById('group-name').value;
+            const courseId = document.getElementById('course-id-placeholder').value;
+
+            if (!teacherId || !groupName || !courseId) {
+                alert("Все поля должны быть заполнены!");
+                return;
+            }
+
+            await fetch('/api/groups', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    group_name: groupName,
+                    group_teacher_id: teacherId,
+                    group_course_id: courseId
+                })
+            });
+
+            fetchGroups(); // Обновим список групп после создания
+        }
+
+        // Функция для отображения формы создания группы
+        function showGroupForm(courseId, courseName) {
+            document.getElementById('course-name-placeholder').textContent = courseName;
+            document.getElementById('course-id-placeholder').value = courseId;
+            document.getElementById('group-form').classList.remove('hidden');
+            fetchTeachers(); // Загружаем учителей
+        }
+
+        // Функция для отображения/скрытия формы для создания курса
+        function toggleCourseForm() {
+            document.getElementById('course-form').classList.toggle('hidden');
+        }
+
+        // Функция для получения всех курсов
+        async function fetchCourses() {
+            const response = await fetch('/api/courses');
+            const courses = await response.json();
+            const courseList = document.getElementById('courses-list');
+            courseList.innerHTML = '';
+
+            courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.classList.add('course-card');
+                courseCard.innerHTML = `
+                            <h3>${course.course_name}</h3>
+                            <p>Стоимость: ${course.course_price} руб.</p>
+                            <p>Количество часов: ${course.course_time}</p>
+                            <button class="create-btn" onclick="showGroupForm(${course.course_id}, '${course.course_name}')">Создать группу</button>
+                        `;
+                courseList.appendChild(courseCard);
+            });
+        }
+
+        // Функция для получения всех групп
+        async function fetchGroups() {
+            const response = await fetch('/api/groups');
+            const groups = await response.json();
+            const groupList = document.getElementById('groups-list');
+            groupList.innerHTML = '';
+
+            groups.forEach(group => {
+                const groupCard = document.createElement('div');
+                groupCard.classList.add('group-card');
+                groupCard.innerHTML = `
+                            <h3>${group.group_name}</h3>
+                            <p>Учитель: ${group.teacher_name}</p>
+                            <button class="delete-btn" onclick="deleteGroup(${group.group_id})">Удалить</button>
+                        `;
+                groupList.appendChild(groupCard);
+            });
+        }
+
+        // Инициализация страницы
+        fetchCourses(); // Загружаем все курсы
+        fetchSchemes(); // Загружаем схемы
+        fetchSizes(); // Загружаем размеры групп
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пользователи</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function App() {
+            const [users, setUsers] = React.useState([]);
+            const [parents, setParents] = React.useState([]);
+            const [searchTerm, setSearchTerm] = React.useState('');
+            const [formData, setFormData] = React.useState({
+                surname: '', name: '', patronymic: '', phone: '', login: '', password: '', types: [], birthday: '', parent_id: '', subject: ''
+            });
+
+            React.useEffect(() => {
+                axios.get('http://localhost:1337/api/users')
+                    .then(res => setUsers(res.data))
+                    .catch(err => console.error(err));
+
+                axios.get('http://localhost:1337/api/parents')
+                    .then(res => setParents(res.data))
+                    .catch(err => console.error(err));
+            }, []);
+
+            const userTypes = [
+                { id: 1, name: 'Руководитель', fields: [] },
+                { id: 2, name: 'Учитель', fields: ['subject'] },
+                { id: 3, name: 'Ученик', fields: ['birthday', 'parent_id'] },
+                { id: 4, name: 'Родитель', fields: [] }
+            ];
+
+            const handleSubmit = e => {
+                e.preventDefault();
+                axios.post('http://localhost:1337/api/users/add', formData)
+                    .then(() => window.location.reload())
+                    .catch(err => console.error(err));
+            };
+
+            const handleDelete = id => {
+                axios.delete(`http://localhost:1337/api/users/${id}`)
+                    .then(() => setUsers(users.filter(user => user.user_id !== id)))
+                    .catch(err => console.error(err));
+            };
+
+            const handleTypeChange = (typeId) => {
+                setFormData(prevState => ({
+                    ...prevState,
+                    types: prevState.types.includes(typeId)
+                        ? prevState.types.filter(id => id !== typeId)
+                        : [...prevState.types, typeId]
+                }));
+            };
+
+            const selectedFields = userTypes
+                .filter(type => formData.types.includes(type.id))
+                .flatMap(type => type.fields);
+
+            return (
+                <div>
+                    <h2>Добавить пользователя</h2>
+                    <form onSubmit={handleSubmit}>
+                        <input type='text' placeholder='Фамилия' onChange={e => setFormData({ ...formData, surname: e.target.value })} />
+                        <input type='text' placeholder='Имя' onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                        <input type='text' placeholder='Отчество' onChange={e => setFormData({ ...formData, patronymic: e.target.value })} />
+                        <input type='text' placeholder='Телефон' onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                        <input type='text' placeholder='Логин' onChange={e => setFormData({ ...formData, login: e.target.value })} />
+                        <input type='password' placeholder='Пароль' onChange={e => setFormData({ ...formData, password: e.target.value })} />
+
+                        <h4>Тип пользователя</h4>
+                        {userTypes.map(type => (
+                            <label key={type.id}>
+                                <input
+                                    type="checkbox"
+                                    value={type.id}
+                                    checked={formData.types.includes(type.id)}
+                                    onChange={() => handleTypeChange(type.id)}
+                                />
+                                {type.name}
+                            </label>
+                        ))}
+
+                        {selectedFields.includes('birthday') && (
+                            <input type='date' placeholder='Дата рождения' onChange={e => setFormData({ ...formData, birthday: e.target.value })} />
+                        )}
+
+                        {selectedFields.includes('parent_id') && (
+                            <div>
+                                <input
+                                    type="text"
+                                    placeholder="Поиск родителя"
+                                    value={searchTerm}
+                                    onChange={e => setSearchTerm(e.target.value)}
+                                />
+                                <select onChange={e => setFormData({ ...formData, parent_id: e.target.value })}>
+                                    <option value="">Выберите родителя</option>
+                                    {parents
+                                        .filter(parent =>
+                                            `${parent.user_surname} ${parent.user_name} ${parent.user_patronymic}`
+                                            .toLowerCase()
+                                            .includes(searchTerm.toLowerCase())
+                                        )
+                                        .map(parent => (
+                                            <option key={parent.user_id} value={parent.user_id}>
+                                                {parent.user_surname} {parent.user_name} {parent.user_patronymic}
+                                            </option>
+                                        ))}
+                                </select>
+                            </div>
+                        )}
+
+                        {selectedFields.includes('subject') && (
+                            <input type='text' placeholder='Предмет' onChange={e => setFormData({ ...formData, subject: e.target.value })} />
+                        )}
+
+                        <button type='submit'>Добавить</button>
+                    </form>
+
+                    <h2>Список пользователей</h2>
+                    <ul>
+                        {users.map(user => (
+                            <li key={user.user_id}>
+                                {user.user_surname} {user.user_name} - Типы: {user.types.map(id => userTypes.find(t => t.id === id)?.name).join(', ')}
+                                <button onClick={() => handleDelete(user.user_id)}>Удалить</button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

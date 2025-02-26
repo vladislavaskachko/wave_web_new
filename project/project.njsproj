@@ -36,7 +36,16 @@
     <Content Include="controllers\authController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\courseController.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="controllers\groupController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\notificationController.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="controllers\parentsController.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="controllers\paymentController.js">
@@ -48,13 +57,28 @@
     <Content Include="controllers\settingsController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\studentController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\supportController.js" />
+    <Content Include="controllers\teacherController.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="controllers\userController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="css\styles.css" />
     <Content Include="public\adminPayment.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\adminUser.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\attendance.html" />
     <Content Include="public\attTeacher.html" />
+    <Content Include="public\coursesGroups.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\index.html">
       <SubType>Code</SubType>
     </Content>
@@ -73,7 +97,16 @@
     <Content Include="routes\authRoutes.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="routes\course.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\group.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="routes\notification.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\parent.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\payment.js">
@@ -85,7 +118,16 @@
     <Content Include="routes\settings.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="routes\student.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="routes\support.js" />
+    <Content Include="routes\teacher.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="routes\users.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="server.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
@@ -94,6 +136,7 @@
     <Folder Include="config\" />
     <Folder Include="controllers\" />
     <Folder Include="css\" />
+    <Folder Include="views\" />
     <Folder Include="public\" />
     <Folder Include="routes\" />
   </ItemGroup>
