@@ -64,10 +64,11 @@ exports.addUser = (req, res) => {
 
 exports.getUsers = (req, res) => {
     db.query(`
-    SELECT u.*, GROUP_CONCAT(ut.users_type_id) AS types
-FROM users u
-LEFT JOIN users_types ut ON u.user_id = ut.users_id
-GROUP BY u.user_id;
+    SELECT u.user_id, u.user_surname, u.user_name, u.user_patronymic, u.user_phone, GROUP_CONCAT(ut.users_type_id) AS types
+    FROM users u
+    LEFT JOIN users_types ut ON u.user_id = ut.users_id
+    GROUP BY u.user_id
+    ORDER BY u.user_surname ASC;  -- Сортировка по фамилии
   `, (err, results) => {
         if (err) return res.status(500).json(err);
         res.json(results.map(user => ({
@@ -85,5 +86,33 @@ exports.deleteUser = (req, res) => {
         db.query('DELETE FROM users_types WHERE users_id = ?', [id], () => {
             res.json({ message: 'User deleted successfully' });
         });
+    });
+};
+
+exports.getUserDetails = (req, res) => {
+    const { id } = req.params;
+
+    db.query(`
+    SELECT u.*, GROUP_CONCAT(ut.users_type_id) AS types,
+           s.student_birthday, s.student_parent_id AS parent_id,
+           t.teacher_subject, p.parent_user_id
+    FROM users u
+    LEFT JOIN users_types ut ON u.user_id = ut.users_id
+    LEFT JOIN student s ON u.user_id = s.student_user_id
+    LEFT JOIN teacher t ON u.user_id = t.teacher_user_id
+    LEFT JOIN parent p ON u.user_id = p.parent_user_id
+    WHERE u.user_id = ?
+    GROUP BY u.user_id
+    `, [id], (err, results) => {
+        if (err) return res.status(500).json(err);
+        if (results.length > 0) {
+            const user = results[0];
+            res.json({
+                ...user,
+                types: user.types ? user.types.split(',').map(Number) : []
+            });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
     });
 };

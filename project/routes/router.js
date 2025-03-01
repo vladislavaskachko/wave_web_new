@@ -80,6 +80,7 @@ router.get('/api/parents', parentsController.getParents);
 router.get('/api/users', userController.getUsers);
 router.post('/api/users/add', userController.addUser);
 router.delete('/api/users/:id', userController.deleteUser);
+router.get('/api/users/:id', userController.getUserDetails);
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
