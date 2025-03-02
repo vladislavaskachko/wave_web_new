@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Управление тестами и оценками</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        /* Контейнер для двух блоков */
+        .flex-container {
+            display: flex;
+            gap: 20px;
+        }
+        /* Первый блок (формы) уже, второй (таблица) – шире */
+        .left-block {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .right-block {
+            flex: 2;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 40px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #1c2983;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #16226b;
+            }
+        /* Группировка полей "Дата теста" и "Группа" в одну строку */
+        .inline-fields {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+            .inline-fields > div {
+                flex: 1;
+            }
+        /* Группировка "Выберите ученика" и "Посещаемость" с разным соотношением */
+        .flex-large {
+            flex: 3;
+        }
+
+        .flex-small {
+            flex: 1;
+        }
+        /* Таблица в правом блоке */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #1c2983;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Управление тестами и оценками</h1>
+    <div class="flex-container">
+        <!-- Левый блок с формами -->
+        <div class="left-block">
+            <!-- Форма для создания теста -->
+            <section id="create-test">
+                <h2>Создание теста</h2>
+                <form id="createTestForm" action="/api/tests" method="POST">
+                    <label for="testName">Название теста:</label>
+                    <input type="text" id="testName" name="testName" required>
+
+                    <div class="inline-fields">
+                        <div>
+                            <label for="testDate">Дата теста:</label>
+                            <input type="date" id="testDate" name="testDate" required>
+                        </div>
+                        <div>
+                            <label for="testGroup">Группа:</label>
+                            <select id="testGroup" name="testGroup" required>
+                                <option value="">Выберите группу</option>
+                                <option value="1">Группа 1</option>
+                                <option value="2">Группа 2</option>
+                                <option value="3">Группа 3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit">Создать тест</button>
+                </form>
+            </section>
+
+            <!-- Форма для добавления информации об оценках и посещаемости -->
+            <section id="add-test-info">
+                <h2>Добавление информации о тесте</h2>
+                <form id="addTestInfoForm" action="/api/test-visit" method="POST">
+                    <label for="testId">Выберите тест:</label>
+                    <select id="testId" name="testId" required>
+                        <option value="">Выберите тест</option>
+                        <option value="1">Тест 1</option>
+                        <option value="2">Тест 2</option>
+                        <option value="3">Тест 3</option>
+                    </select>
+
+                    <label for="testGroupForTest">Выберите группу для теста:</label>
+                    <select id="testGroupForTest" name="testGroupForTest" required>
+                        <option value="">Выберите группу</option>
+                        <option value="1">Группа 1</option>
+                        <option value="2">Группа 2</option>
+                        <option value="3">Группа 3</option>
+                    </select>
+
+                    <div class="inline-fields">
+                        <div class="flex-large">
+                            <label for="studentId">Выберите ученика:</label>
+                            <select id="studentId" name="studentId" required>
+                                <option value="">Выберите ученика</option>
+                                <option value="1">Иванов Иван Иванович</option>
+                                <option value="2">Петров Петр Петрович</option>
+                                <option value="3">Сидорова Мария Сергеевна</option>
+                            </select>
+                        </div>
+                        <div class="flex-small">
+                            <label for="attendance">Посещаемость:</label>
+                            <select id="attendance" name="attendance" required>
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                                <option value="б">б</option>
+                                <option value="у">у</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <label for="mark">Оценка (от 1 до 100):</label>
+                    <input type="number" id="mark" name="mark" min="1" max="100">
+
+                    <button type="submit">Добавить информацию</button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Правый блок с таблицей оценок выбранной группы -->
+        <div class="right-block">
+            <h2>Оценки выбранной группы</h2>
+            <div class="inline-fields">
+                <div>
+                    <label for="groupSelect">Выберите группу:</label>
+                    <select id="groupSelect">
+                        <option value="">Выберите группу</option>
+                        <option value="1">Группа 1</option>
+                        <option value="2">Группа 2</option>
+                        <option value="3">Группа 3</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="groupTestSelect">Выберите тест:</label>
+                    <select id="groupTestSelect">
+                        <option value="">Все тесты</option>
+                        <option value="Тест 1">Тест 1</option>
+                        <option value="Тест 2">Тест 2</option>
+                        <option value="Тест 3">Тест 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ФИО ученика</th>
+                        <th>Название теста</th>
+                        <th>Дата теста</th>
+                        <th>Посещаемость</th>
+                        <th>Оценка</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesTableBody">
+                    <!-- Пример статических строк -->
+                    <tr>
+                        <td>Иванов Иван Иванович</td>
+                        <td>Тест 1</td>
+                        <td>15.02.2025</td>
+                        <td>+</td>
+                        <td>90</td>
+                    </tr>
+                    <tr>
+                        <td>Петров Петр Петрович</td>
+                        <td>Тест 2</td>
+                        <td>17.02.2025</td>
+                        <td>-</td>
+                        <td>75</td>
+                    </tr>
+                    <tr>
+                        <td>Сидорова Мария Сергеевна</td>
+                        <td>Тест 1</td>
+                        <td>15.02.2025</td>
+                        <td>б</td>
+                        <td>80</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Фильтрация строк таблицы по выбранному тесту
+        document.getElementById('groupTestSelect').addEventListener('change', function () {
+            var selectedTest = this.value.trim();
+            var tableBody = document.getElementById('gradesTableBody');
+            var rows = tableBody.getElementsByTagName('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var testNameCell = rows[i].cells[1]; // название теста во 2-й колонке
+                if (selectedTest === "" || testNameCell.textContent.trim() === selectedTest) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        });
+    </script>
+</body>
+</html>
