@@ -37,6 +37,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="controllers\gradeStudentController.js" />
+    <Content Include="controllers\gradeTeacherController.js" />
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
