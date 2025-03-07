@@ -28,7 +28,7 @@ exports.addUser = (req, res) => {
             // Дополнительные записи в student, teacher, parent
             if (types.includes(3)) {  // Ученик
                 userTypeQueries.push(new Promise((resolve, reject) => {
-                    db.query('INSERT INTO student (student_user_id, student_parent_id, student_dirthday) VALUES (?, ?, ?)',
+                    db.query('INSERT INTO student (student_user_id, student_parent_id, student_birthday) VALUES (?, ?, ?)',
                         [userId, parent_id || null, birthday || null], (err) => {
                             if (err) reject(err);
                             else resolve();

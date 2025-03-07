@@ -129,273 +129,295 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
-                const { useState, useEffect } = React;
+                                const { useState, useEffect } = React;
 
-                // Функция для валидации телефона
-                const validatePhone = (phone) => {
-                    const phoneRegex = /^\+7\d{10}$/; // Российский номер с +7 и 10 цифрами
-                    return phoneRegex.test(phone);
-                };
+                                // Функция для валидации телефона
+                                const validatePhone = (phone) => {
+                                    const phoneRegex = /^\+7\d{10}$/; // Российский номер с +7 и 10 цифрами
+                                    return phoneRegex.test(phone);
+                                };
 
-                function UserModal() {
-                    const [users, setUsers] = useState([]);
-                    const [filteredUsers, setFilteredUsers] = useState([]);
-                    const [parents, setParents] = useState([]);
-                    const [selectedUser, setSelectedUser] = useState(null);
-                    const [isAddingUser, setIsAddingUser] = useState(false);
-                    const [selectedTypes, setSelectedTypes] = useState([]);
-                    const [searchTerm, setSearchTerm] = useState("");
-                    const [formData, setFormData] = useState({
-                        surname: "",
-                        name: "",
-                        patronymic: "",
-                        phone: "+7", // Установим +7 как дефолт
-                        login: "",
-                        password: "",
-                        birthday: "",
-                        parent_id: "",
-                        subject: "",
-                    });
-                    const [errors, setErrors] = useState({
-                        phone: "",
-                        login: "",
-                        password: "",
-                    });
+                                function UserModal() {
+                                    const [users, setUsers] = useState([]);
+                                    const [filteredUsers, setFilteredUsers] = useState([]);
+                                    const [parents, setParents] = useState([]);
+                                    const [selectedUser, setSelectedUser] = useState(null);
+                                    const [isAddingUser, setIsAddingUser] = useState(false);
+                                    const [selectedTypes, setSelectedTypes] = useState([]);
+                                    const [searchTerm, setSearchTerm] = useState("");
+                                    const [formData, setFormData] = useState({
+                                        surname: "",
+                                        name: "",
+                                        patronymic: "",
+                                        phone: "+7", // Установим +7 как дефолт
+                                        login: "",
+                                        password: "",
+                                        birthday: "",
+                                        parent_id: "",
+                                        subject: "",
+                                    });
+                                    const [errors, setErrors] = useState({
+                                        phone: "",
+                                        login: "",
+                                        password: "",
+                                    });
 
-                    useEffect(() => {
-                        axios.get("http://localhost:1337/api/users")
-                            .then((res) => {
-                                setUsers(res.data);
-                                setFilteredUsers(res.data); // Начальный список для фильтрации
-                            });
-                        axios.get("http://localhost:1337/api/parents")
-                            .then((res) => setParents(res.data));
-                    }, []);
+                                    useEffect(() => {
+                                        axios.get("http://localhost:1337/api/users")
+                                            .then((res) => {
+                                                setUsers(res.data);
+                                                setFilteredUsers(res.data); // Начальный список для фильтрации
+                                            });
+                                        axios.get("http://localhost:1337/api/parents")
+                                            .then((res) => setParents(res.data));
+                                    }, []);
 
-                    const userTypes = [
-                        { id: 1, name: "Руководитель", fields: [] },
-                        { id: 2, name: "Учитель", fields: ["subject"] },
-                        { id: 3, name: "Ученик", fields: ["birthday", "parent_id"] },
-                        { id: 4, name: "Родитель", fields: [] },
-                    ];
+                                    const userTypes = [
+                                        { id: 1, name: "Руководитель", fields: [] },
+                                        { id: 2, name: "Учитель", fields: ["subject"] },
+                                        { id: 3, name: "Ученик", fields: ["birthday", "parent_id"] },
+                                        { id: 4, name: "Родитель", fields: [] },
+                                    ];
 
-                    // Фильтрация списка пользователей
-                    const handleSearch = (searchTerm) => {
-                        setSearchTerm(searchTerm);
-                        const filtered = users.filter((user) => {
-                            const fullName = `${user.user_surname} ${user.user_name} ${user.user_patronymic}`.toLowerCase();
-                            const phone = user.user_phone.toLowerCase();
-                            return (
-                                fullName.includes(searchTerm.toLowerCase()) ||
-                                phone.includes(searchTerm.toLowerCase())
-                            );
-                        });
-                        setFilteredUsers(filtered);
-                    };
+                                    // Фильтрация списка пользователей
+                                    const handleSearch = (searchTerm) => {
+                                        setSearchTerm(searchTerm);
+                                        const filtered = users.filter((user) => {
+                                            const fullName = `${user.user_surname} ${user.user_name} ${user.user_patronymic}`.toLowerCase();
+                                            const phone = user.user_phone.toLowerCase();
+                                            return (
+                                                fullName.includes(searchTerm.toLowerCase()) ||
+                                                phone.includes(searchTerm.toLowerCase())
+                                            );
+                                        });
+                                        setFilteredUsers(filtered);
+                                    };
 
-                    const handleSubmit = (e) => {
-                        e.preventDefault();
+                                    const handleSubmit = (e) => {
+                                        e.preventDefault();
 
-                        // Проверка на ошибки в форме
-                        if (!validatePhone(formData.phone)) {
-                            setErrors({ ...errors, phone: "Неверный формат телефона." });
-                            return;
-                        }
-                        if (!formData.login) {
-                            setErrors({ ...errors, login: "Логин не может быть пустым." });
-                            return;
-                        }
-                        if (!formData.password) {
-                            setErrors({ ...errors, password: "Пароль не может быть пустым." });
-                            return;
-                        }
-
-                        // Отправка данных на сервер
-                        axios.post("http://localhost:1337/api/users/add", { ...formData, types: selectedTypes })
-                            .then(() => {
-                                // После успешной отправки сбрасываем форму и выбранные типы
-                                setFormData({
-                                    surname: "",
-                                    name: "",
-                                    patronymic: "",
-                                    phone: "",
-                                    login: "",
-                                    password: "",
-                                    birthday: "",
-                                    parent_id: "",
-                                    subject: "",
-                                });
-                                setErrors({
-                                    phone: "",
-                                    login: "",
-                                    password: "",
-                                });
-                                setSelectedTypes([]); // Сбрасываем выбранные типы
-
-                                setIsAddingUser(false); // Закрываем модальное окно
-                                window.location.reload(); // Обновляем список пользователей
-                            })
-                            .catch(error => {
-                                console.error("Ошибка при добавлении пользователя:", error);
-                            });
-                    };
-
-                    return (
-                        <div className="container">
-                            <div className="list-container">
-                                <h2>Список пользователей</h2>
-
-                                {/* Фильтрация списка */}
-                                <div className="search-container">
-                                    <input
-                                        type="text"
-                                        placeholder="Поиск по ФИО или телефону"
-                                        value={searchTerm}
-                                        onChange={(e) => handleSearch(e.target.value)}
-                                    />
-                                    <select onChange={(e) => {
-                                        const typeId = Number(e.target.value);
-                                        if (typeId === 0) {
-                                            setSelectedTypes([]);
-                                        } else {
-                                            setSelectedTypes([typeId]);
+                                        // Проверка на ошибки в форме
+                                        if (!validatePhone(formData.phone)) {
+                                            setErrors({ ...errors, phone: "Неверный формат телефона." });
+                                            return;
                                         }
-                                    }}>
-                                        <option value="0">Все типы</option>
-                                        {userTypes.map((type) => (
-                                            <option key={type.id} value={type.id}>
-                                                {type.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                                        if (!formData.login) {
+                                            setErrors({ ...errors, login: "Логин не может быть пустым." });
+                                            return;
+                                        }
+                                        if (!formData.password) {
+                                            setErrors({ ...errors, password: "Пароль не может быть пустым." });
+                                            return;
+                                        }
 
-                                {/* Список пользователей */}
-                                <ul>
-                                    {filteredUsers.map((user) => (
-                                        <li
-                                            key={user.user_id}
-                                            className="user-item"
-                                            onClick={() => setSelectedUser(user)}
-                                        >
-                                            {`${user.user_surname} ${user.user_name} ${user.user_patronymic}`} - {user.user_phone}
-                                        </li>
-                                    ))}
-                                </ul>
+                                        // Отправка данных на сервер
+                                        axios.post("http://localhost:1337/api/users/add", { ...formData, types: selectedTypes })
+                                            .then(() => {
+                                                // После успешной отправки сбрасываем форму и выбранные типы
+                                                setFormData({
+                                                    surname: "",
+                                                    name: "",
+                                                    patronymic: "",
+                                                    phone: "",
+                                                    login: "",
+                                                    password: "",
+                                                    birthday: "",
+                                                    parent_id: "",
+                                                    subject: "",
+                                                });
+                                                setErrors({
+                                                    phone: "",
+                                                    login: "",
+                                                    password: "",
+                                                });
+                                                setSelectedTypes([]); // Сбрасываем выбранные типы
 
-                                <button onClick={() => setIsAddingUser(true)} className="modal-button">
-                                    Добавить пользователя
-                                </button>
-                            </div>
+                                                setIsAddingUser(false); // Закрываем модальное окно
+                                                window.location.reload(); // Обновляем список пользователей
+                                            })
+                                            .catch(error => {
+                                                console.error("Ошибка при добавлении пользователя:", error);
+                                            });
+                                    };
 
-                            {/* Карточка пользователя */}
-                            {selectedUser && (
-                                <>
-                                    <div className="overlay" onClick={() => setSelectedUser(null)}></div>
-                                    <div className="modal">
-                                        <h3>Информация о пользователе</h3>
-                                        <p><strong>ФИО:</strong> {`${selectedUser.user_surname} ${selectedUser.user_name} ${selectedUser.user_patronymic}`}</p>
-                                        <p><strong>Телефон:</strong> {selectedUser.user_phone}</p>
-                                        <p><strong>Типы:</strong> {selectedUser.types.map((type) => userTypes.find((t) => t.id === type)?.name).join(', ')}</p>
-                                        <button onClick={() => setSelectedUser(null)} className="close-button">Закрыть</button>
-                                    </div>
-                                </>
-                            )}
+                                    return (
+                                        <div className="container">
+                                            <div className="list-container">
+                                                <h2>Список пользователей</h2>
 
-                            {/* Форма добавления пользователя */}
-                            {isAddingUser && (
-                                <>
-                                    <div className="overlay" onClick={() => {
-                                        setIsAddingUser(false);
-                                        setSelectedTypes([]); // Сброс выбранных типов при закрытии формы
-                                    }}></div>
-                                    <div className="modal">
-                                        <h2>Добавить пользователя</h2>
-                                        <h4>Выберите тип</h4>
-                                        {userTypes.map((type) => (
-                                            <label key={type.id}>
-                                                <input type="checkbox" onChange={() => {
-                                                    setSelectedTypes(prev => {
-                                                        if (prev.includes(type.id)) {
-                                                            return prev.filter(id => id !== type.id);
-                                                        } else {
-                                                            return [...prev, type.id];
-                                                        }
-                                                    });
-                                                }} /> {type.name}
-                                            </label>
-                                        ))}
+                                                {/* Фильтрация списка */}
+                                                <div className="search-container">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Поиск по ФИО или телефону"
+                                                        value={searchTerm}
+                                                        onChange={(e) => handleSearch(e.target.value)}
+                                                    />
+                                                    <select onChange={(e) => {
+                                                                const typeId = Number(e.target.value);
+                let updatedSelectedTypes = [];
 
-                                        <form onSubmit={handleSubmit}>
-                                            <input
-                                                type="text"
-                                                placeholder="Фамилия"
-                                                value={formData.surname}
-                                                onChange={(e) => setFormData({ ...formData, surname: e.target.value })}
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Имя"
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Отчество"
-                                                value={formData.patronymic}
-                                                onChange={(e) => setFormData({ ...formData, patronymic: e.target.value })}
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Телефон (+7)"
-                                                value={formData.phone}
-                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            />
-                                            {errors.phone && <p className="error">{errors.phone}</p>}
-                                            <input
-                                                type="text"
-                                                placeholder="Логин"
-                                                value={formData.login}
-                                                onChange={(e) => setFormData({ ...formData, login: e.target.value })}
-                                            />
-                                            {errors.login && <p className="error">{errors.login}</p>}
-                                            <input
-                                                type="password"
-                                                placeholder="Пароль"
-                                                value={formData.password}
-                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            />
-                                            {errors.password && <p className="error">{errors.password}</p>}
-
-                                            {/* Если выбран тип "Ученик", показываем поле "Родитель" */}
-                                            {selectedTypes.includes(3) && (
-                                        <select
-                                        value={formData.parent_id}
-                                        onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
-                                        style={{ display: selectedTypes.includes(3) ? "block" : "none" }}
-                                    >
-                                        <option value="">Выберите родителя</option>
-                                        {parents.map((parent) => (
-                                           <option key={parent.user_id} value={parent.user_id}>
-    {`${parent.user_surname} ${parent.user_name} ${parent.user_patronymic}`}
-</option>
-                                        ))}
-                                    </select>
-                                    )}
-
-                                            <div className="form-actions">
-                                                <button type="submit" className="modal-button">Добавить</button>
-                                                <button type="button" className="close-button" onClick={() => setIsAddingUser(false)}>Отмена</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                    );
+                if (typeId === 0) {
+                    updatedSelectedTypes = []; // "Все типы"
+                } else {
+                    updatedSelectedTypes = [typeId];
                 }
 
-                ReactDOM.render(<UserModal />, document.getElementById('root'));
+                setSelectedTypes(updatedSelectedTypes);
+
+                // Фильтруем пользователей по типу
+                const filtered = users.filter((user) =>
+                    updatedSelectedTypes.length === 0 || user.types.some((t) => updatedSelectedTypes.includes(t))
+                );
+
+                setFilteredUsers(filtered);
+            }}
+        >
+            <option value="0">Все типы</option>
+            {userTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                    {type.name}
+                </option>
+            ))}
+                                                        ))}
+                                                    </select>
+                                                </div>
+
+                                                {/* Список пользователей */}
+                                                <ul>
+                                                    {filteredUsers.map((user) => (
+                                                        <li
+                                                            key={user.user_id}
+                                                            className="user-item"
+                                                            onClick={() => setSelectedUser(user)}
+                                                        >
+                                                            {`${user.user_surname} ${user.user_name} ${user.user_patronymic}`} - {user.user_phone}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+
+                                                <button onClick={() => setIsAddingUser(true)} className="modal-button">
+                                                    Добавить пользователя
+                                                </button>
+                                            </div>
+
+
+                                            {/* Карточка пользователя */}
+                                            {selectedUser && (
+                                                <>
+                                                    <div className="overlay" onClick={() => setSelectedUser(null)}></div>
+                                                    <div className="modal">
+                                                        <h3>Информация о пользователе</h3>
+                                                        <p><strong>ФИО:</strong> {`${selectedUser.user_surname} ${selectedUser.user_name} ${selectedUser.user_patronymic}`}</p>
+                                                        <p><strong>Телефон:</strong> {selectedUser.user_phone}</p>
+                                                        <p><strong>Типы:</strong> {selectedUser.types.map((type) => userTypes.find((t) => t.id === type)?.name).join(', ')}</p>
+                                                        <button onClick={() => setSelectedUser(null)} className="close-button">Закрыть</button>
+                                                    </div>
+                                                </>
+                                            )}
+
+                                            {/* Форма добавления пользователя */}
+                                            {isAddingUser && (
+                                                <>
+                                                    <div className="overlay" onClick={() => {
+                                                        setIsAddingUser(false);
+                                                        setSelectedTypes([]); // Сброс выбранных типов при закрытии формы
+                                                    }}></div>
+                                                    <div className="modal">
+                                                        <h2>Добавить пользователя</h2>
+                                                        <h4>Выберите тип</h4>
+                                                        {userTypes.map((type) => (
+                                                            <label key={type.id}>
+                                                                <input type="checkbox" onChange={() => {
+                                                                    setSelectedTypes(prev => {
+                                                                        if (prev.includes(type.id)) {
+                                                                            return prev.filter(id => id !== type.id);
+                                                                        } else {
+                                                                            return [...prev, type.id];
+                                                                        }
+                                                                    });
+                                                                }} /> {type.name}
+                                                            </label>
+                                                        ))}
+
+                                                        <form onSubmit={handleSubmit}>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Фамилия"
+                                                                value={formData.surname}
+                                                                onChange={(e) => setFormData({ ...formData, surname: e.target.value })}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Имя"
+                                                                value={formData.name}
+                                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Отчество"
+                                                                value={formData.patronymic}
+                                                                onChange={(e) => setFormData({ ...formData, patronymic: e.target.value })}
+                                                            />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Телефон (+7)"
+                                                                value={formData.phone}
+                                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                            />
+                                                            {errors.phone && <p className="error">{errors.phone}</p>}
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Логин"
+                                                                value={formData.login}
+                                                                onChange={(e) => setFormData({ ...formData, login: e.target.value })}
+                                                            />
+                                                            {errors.login && <p className="error">{errors.login}</p>}
+                                                            <input
+                                                                type="password"
+                                                                placeholder="Пароль"
+                                                                value={formData.password}
+                                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                            />
+                                                            {errors.password && <p className="error">{errors.password}</p>}
+
+                                                            {/* Если выбран тип "Ученик", показываем поле "Родитель" */}
+                                                            {selectedTypes.includes(3) && (
+                    <>
+                        <input
+                            type="date"
+                            placeholder="Дата рождения"
+                            value={formData.birthday}
+                            onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
+                        />
+                        <select
+                            value={formData.parent_id}
+                            onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                        >
+                            <option value="">Выберите родителя</option>
+                            {parents.map((parent) => (
+                                <option key={parent.user_id} value={parent.user_id}>
+                                    {`${parent.user_surname} ${parent.user_name} ${parent.user_patronymic}`}
+                                </option>
+                            ))}
+                        </select>
+                    </>
+                )}
+
+
+                                                            <div className="form-actions">
+                                                                <button type="submit" className="modal-button">Добавить</button>
+                                                                <button type="button" className="close-button" onClick={() => setIsAddingUser(false)}>Отмена</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    );
+                                }
+
+                                ReactDOM.render(<UserModal />, document.getElementById('root'));
     </script>
 </body>
 </html>
