@@ -17,6 +17,7 @@ var groupController = require('../controllers/groupController');
 var teacherController = require('../controllers/teacherController');
 var studentController = require('../controllers/studentController');
 var gradeTeacherController = require('../controllers/gradeTeacherController');
+var gradeParentController = require('../controllers/gradeParentController');
 var userController = require('../controllers/userController')
 const parentsController = require('../controllers/parentsController');
 
@@ -53,6 +54,8 @@ router.get('/api/student/lessons', scheduleStudentController.getLessons);
 
 router.get('/api/parent/children', scheduleParentController.getChildren);
 router.get('/api/parent/lessons', scheduleParentController.getLessons);
+
+router.get('/api/parent/grades', gradeParentController.getGrades);
 
 router.get('/api/student/grades', gradeStudentConroller.getGrades);
 router.get('/api/teacher/tests', gradeTeacherController.getTestsByGroup);
