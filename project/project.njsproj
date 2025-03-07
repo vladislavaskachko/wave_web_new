@@ -36,7 +36,9 @@
     <Content Include="controllers\authController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\gradeParentController.js" />
     <Content Include="controllers\gradeStudentController.js" />
+    <Content Include="controllers\gradeTeacherController.js" />
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
@@ -49,12 +51,7 @@
     <Content Include="controllers\scheduleParentController.js" />
     <Content Include="controllers\scheduleStudentController.js" />
     <Content Include="controllers\scheduleDirectorController.js" />
-    <Content Include="controllers\settingsController.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="controllers\studentController.js">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="controllers\scheduleTeacherController.js" />
     <Content Include="controllers\supportController.js" />
     <Content Include="controllers\teacherController.js">
       <SubType>Code</SubType>
@@ -71,6 +68,8 @@
     </Content>
     <Content Include="public\attendance.html" />
     <Content Include="public\attTeacher.html" />
+    <Content Include="public\gradeParent.html" />
+    <Content Include="public\gradeStudent.html" />
     <Content Include="public\index.html">
       <SubType>Code</SubType>
     </Content>
@@ -80,9 +79,7 @@
     <Content Include="public\scheduleParent.html" />
     <Content Include="public\scheduleStudent.html" />
     <Content Include="public\scheduleDirector.html" />
-    <Content Include="public\settings.html">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="public\scheduleTeacher.html" />
     <Content Include="public\support.html" />
     <Content Include="routes\attendance.js" />
     <Content Include="routes\attTeacher.js" />
@@ -108,9 +105,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\settings.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="routes\student.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="routes\support.js" />

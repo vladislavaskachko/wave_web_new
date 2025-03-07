@@ -16,6 +16,9 @@ var courseController = require('../controllers/courseController');
 var groupController = require('../controllers/groupController');
 var teacherController = require('../controllers/teacherController');
 var studentController = require('../controllers/studentController');
+var gradeTeacherController = require('../controllers/gradeTeacherController');
+var gradeParentController = require('../controllers/gradeParentController');
+var scheduleTeacherController = require('../controllers/scheduleTeacherController')
 var userController = require('../controllers/userController')
 const parentsController = require('../controllers/parentsController');
 
@@ -40,6 +43,8 @@ router.post('/api/teacher/addLessonDate', attTeacherController.addLessonDate);
 router.get('/api/teacher/lessons', attTeacherController.getLessonsByGroup);
 router.post('/api/teacher/deleteLessonDate', attTeacherController.deleteLessonDate);
 
+router.get('/api/teacher/schLessons', scheduleTeacherController.getLessonsForTeacher);
+
 router.get('/api/director/days', scheduleDirectorController.getDays);
 router.get('/api/director/rooms', scheduleDirectorController.getRooms);
 router.get('/api/director/groups', scheduleDirectorController.getGroups);
@@ -52,7 +57,15 @@ router.get('/api/student/lessons', scheduleStudentController.getLessons);
 router.get('/api/parent/children', scheduleParentController.getChildren);
 router.get('/api/parent/lessons', scheduleParentController.getLessons);
 
+router.get('/api/parent/grades', gradeParentController.getGrades);
+
 router.get('/api/student/grades', gradeStudentConroller.getGrades);
+router.get('/api/teacher/tests', gradeTeacherController.getTestsByGroup);
+router.get('/api/teacher/grades', gradeTeacherController.getGrades);
+router.get('/api/teacher/students', gradeTeacherController.getStudents);
+router.delete('/api/teacher/deleteTests', gradeTeacherController.deleteTest);
+router.post('/api/teacher/createTest', gradeTeacherController.createTest);
+router.post('/api/teacher/visitMarks', gradeTeacherController.addTestVisit);
 
 router.get('/api/settings/schemes', settingsController.getSchemes);
 router.post('/api/settings/add-scheme', settingsController.addScheme);

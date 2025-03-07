@@ -1,0 +1,527 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Тесты и оценки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        /* Контейнер для двух блоков */
+        .flex-container {
+            display: flex;
+            gap: 20px;
+        }
+        /* Первый блок (формы) и второй (таблица) – стилизация */
+        .left-block {
+            flex: 1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .right-block {
+            flex: 2;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 40px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #1c2983;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #16226b;
+            }
+        /* Группировка полей в одну строку */
+        .inline-fields {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+            .inline-fields > div {
+                flex: 1;
+            }
+            .inline-fields select,
+            .inline-fields button {
+                height: 40px;
+                padding: 8px;
+                margin-top: 5px;
+                box-sizing: border-box;
+            }
+
+
+        .flex-large {
+            flex: 3;
+        }
+
+        .flex-small {
+            flex: 1;
+        }
+        /* Стилизация таблицы */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #1c2983;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Тесты и оценки</h1>
+    <div class="flex-container">
+        <!-- Левый блок с формами -->
+        <div class="left-block">
+            <!-- Форма для создания теста -->
+            <section id="create-test">
+                <h2>Создание теста</h2>
+                <form id="createTestForm" action="/api/tests" method="POST">
+                    <label for="testName">Название теста:</label>
+                    <input type="text" id="testName" name="testName" required>
+                    <div class="inline-fields">
+                        <div>
+                            <label for="testDate">Дата теста:</label>
+                            <input type="date" id="testDate" name="testDate" required>
+                        </div>
+                        <div>
+                            <label for="testGroup">Группа:</label>
+                            <!-- Данные будут подгружаться динамически -->
+                            <select id="testGroup" name="testGroup" required>
+                                <option value="">Выберите группу</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit">Создать тест</button>
+                </form>
+            </section>
+            <!-- Форма для добавления информации о тесте -->
+            <section id="add-test-info">
+                <h2>Добавление информации о тесте</h2>
+                <form id="addTestInfoForm" action="/api/test-visit" method="POST">
+                    <label for="testGroupForTest">Выберите группу:</label>
+                    <select id="testGroupForTest" name="testGroupForTest" required>
+                        <option value="">Выберите группу</option>
+                    </select>
+
+                    <label for="testId">Выберите тест:</label>
+                    <div class="inline-fields">
+                        <select id="testId" name="testId" required>
+                            <option value="">Выберите тест</option>
+                        </select>
+                        <button type="button" id="deleteTestButton">Удалить тест</button>
+                    </div>
+
+                    <label for="studentId">Выберите ученика:</label>
+                    <select id="studentId" name="studentId" required>
+                        <option value="">Выберите ученика</option>
+                    </select>
+
+                    <div class="inline-fields">
+                        <div class="flex-small">
+                            <label for="attendance">Посещаемость:</label>
+                            <select id="attendance" name="attendance" required>
+                                <option value="+">+</option>
+                                <option value="-">-</option>
+                                <option value="б">б</option>
+                                <option value="у">у</option>
+                            </select>
+                        </div>
+                        <div class="flex-small">
+                            <label for="mark">Оценка (от 1 до 100):</label>
+                            <input type="number" id="mark" name="mark" min="1" max="100">
+                        </div>
+                    </div>
+
+                    <button type="submit">Добавить информацию</button>
+                </form>
+            </section>
+
+        </div>
+        <!-- Правый блок с таблицей оценок выбранной группы -->
+        <div class="right-block">
+            <h2>Оценки группы</h2>
+            <div class="inline-fields">
+                <div>
+                    <label for="groupSelect">Выберите группу:</label>
+                    <select id="groupSelect">
+                        <option value="">Выберите группу</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="groupTestSelect">Выберите тест:</label>
+                    <select id="groupTestSelect">
+                        <option value="">Выберите тест</option>
+                    </select>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ФИО ученика</th>
+                        <th>Название теста</th>
+                        <th>Дата теста</th>
+                        <th>Посещаемость</th>
+                        <th>Оценка</th>
+                    </tr>
+                </thead>
+                <tbody id="gradesTableBody">
+                    <!-- Данные оценок будут подгружаться динамически -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        let token;
+        document.addEventListener('DOMContentLoaded', function() {
+          token = localStorage.getItem('authToken');
+          if (!token) {
+            alert('Вы не авторизированы, пожалуйста, войдите в систему.');
+            return;
+          }
+
+          // Функция для загрузки групп с сервера
+          function loadGroups() {
+            fetch('/api/teacher/groups', {
+              method: 'GET',
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.groups && data.groups.length > 0) {
+                const groupSelects = document.querySelectorAll(
+                  'select[id^="testGroup"], #groupSelect, #testGroupForTest'
+                );
+                groupSelects.forEach(select => {
+                  select.innerHTML = '<option value="">Выберите группу</option>';
+                  data.groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group;
+                    option.textContent = group;
+                    select.appendChild(option);
+                  });
+                });
+              } else {
+                console.error('Нет доступных групп для преподавателя.');
+              }
+            })
+            .catch(error => console.error('Ошибка при загрузке групп:', error));
+          }
+
+          // Функция для загрузки тестов выбранной группы
+          function loadTestsByGroup(group, targetSelectId) {
+            const targetSelect = document.getElementById(targetSelectId);
+            if (!group) {
+              targetSelect.innerHTML = '<option value="">Выберите тест</option>';
+              return;
+            }
+            fetch(`/api/teacher/tests?group=${encodeURIComponent(group)}`, {
+              method: 'GET',
+              headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.tests && data.tests.length > 0) {
+                targetSelect.innerHTML = '<option value="">Выберите тест</option>';
+                data.tests.forEach(test => {
+                  const option = document.createElement('option');
+                  option.value = test.test_id;
+                  option.textContent = test.test_name;
+                  targetSelect.appendChild(option);
+                });
+              } else {
+                targetSelect.innerHTML = '<option value="">Тестов не найдено</option>';
+              }
+            })
+            .catch(error => console.error('Ошибка при загрузке тестов:', error));
+          }
+
+          document.getElementById('deleteTestButton').addEventListener('click', function() {
+          const selectedGroup = document.getElementById('testGroupForTest').value;
+          const selectedTest = document.getElementById('testId').value;
+          if (!selectedGroup || !selectedTest) {
+            alert('Выберите группу и тест для удаления');
+            return;
+          }
+          if (!confirm('Вы уверены, что хотите удалить выбранный тест?')) return;
+          fetch('/api/teacher/deleteTests', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ testId: selectedTest })
+          })
+          .then(response => response.json())
+          .then(data => {
+            alert(data.message);
+            // Обновляем список тестов для выбранной группы
+            loadTestsByGroup(selectedGroup, 'testId');
+          })
+          .catch(error => {
+            console.error('Ошибка при удалении теста:', error);
+            alert('Ошибка при удалении теста');
+          });
+        });
+
+
+          // При изменении группы в форме добавления информации – загружаем тесты для выбранной группы
+          document.getElementById('testGroupForTest')
+            .addEventListener('change', function() {
+              loadTestsByGroup(this.value, 'testId');
+          });
+
+          // При изменении группы для фильтрации оценок – загружаем тесты для выбранной группы
+          document.getElementById('groupSelect')
+            .addEventListener('change', function() {
+              loadTestsByGroup(this.value, 'groupTestSelect');
+          });
+
+          // Загружаем группы при загрузке страницы
+          loadGroups();
+
+              // Функция для загрузки оценок
+        function loadGrades(group, test) {
+            const tableBody = document.getElementById('gradesTableBody');
+            tableBody.innerHTML = ''; // Очищаем таблицу перед загрузкой новых данных
+
+            fetch('/api/teacher/grades', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.grades && data.grades.length > 0) {
+                    const filteredGrades = data.grades.filter(grade => 
+                        (!group || grade.group === group) &&
+                        (!test || grade.testId == test)
+                    );
+
+                    if (filteredGrades.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="5">Нет данных</td></tr>';
+                        return;
+                    }
+
+                    filteredGrades.forEach(grade => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${grade.studentName}</td>
+                            <td>${grade.testName}</td>
+                            <td>${grade.testDate}</td>
+                            <td>${grade.attended || 'Нет данных'}</td>
+                            <td>${grade.grade || 'Нет данных'}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="5">Нет данных</td></tr>';
+                }
+            })
+            .catch(error => console.error('Ошибка при загрузке оценок:', error));
+        }
+
+
+        // Загружаем оценки при изменении группы или теста
+        document.getElementById('groupSelect').addEventListener('change', function() {
+            loadGrades(this.value, document.getElementById('groupTestSelect').value);
+        });
+
+        document.getElementById('groupTestSelect').addEventListener('change', function() {
+            loadGrades(document.getElementById('groupSelect').value, this.value);
+        });
+
+        // Загружаем оценки при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGrades('', '');
+        });
+
+        // Функция для загрузки списка учеников
+        function loadStudents() {
+            token = localStorage.getItem('authToken');
+            fetch('/api/teacher/students', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const studentSelect = document.getElementById('studentId');
+                studentSelect.innerHTML = '<option value="">Выберите ученика</option>';
+
+                if (data.students && data.students.length > 0) {
+                    data.students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.studentId;
+                        option.textContent = `${student.studentName} (${student.groupName})`;
+                        studentSelect.appendChild(option);
+                    });
+                } else {
+                    studentSelect.innerHTML = '<option value="">Ученики не найдены</option>';
+                }
+            })
+            .catch(error => console.error('Ошибка при загрузке списка учеников:', error));
+        }
+
+        function loadStudentsByGroup(group) {
+        token = localStorage.getItem('authToken');
+        fetch('/api/teacher/students', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const studentSelect = document.getElementById('studentId');
+            studentSelect.innerHTML = '<option value="">Выберите ученика</option>';
+            if (data.students && data.students.length > 0) {
+                // Фильтрация учеников по выбранной группе
+                const filteredStudents = data.students.filter(student => student.groupName === group);
+                if (filteredStudents.length > 0) {
+                    filteredStudents.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student.studentId;
+                        option.textContent = student.studentName;
+                        studentSelect.appendChild(option);
+                    });
+                } else {
+                    studentSelect.innerHTML = '<option value="">Ученики не найдены</option>';
+                }
+            } else {
+                studentSelect.innerHTML = '<option value="">Ученики не найдены</option>';
+            }
+        })
+        .catch(error => console.error('Ошибка при загрузке списка учеников:', error));
+        }
+        document.getElementById('testGroupForTest').addEventListener('change', function() {
+            const selectedGroup = this.value;
+            // Загружаем тесты для выбранной группы
+            loadTestsByGroup(selectedGroup, 'testId');
+            // Загружаем учеников только для выбранной группы
+            loadStudentsByGroup(selectedGroup);
+        });
+
+        });
+
+        document.getElementById('createTestForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const testName = document.getElementById('testName').value;
+                const testDate = document.getElementById('testDate').value;
+                const testGroup = document.getElementById('testGroup').value;
+                //console.log({ testName, testDate, testGroup });
+
+                fetch('/api/teacher/createTest', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ testName, testDate, testGroup })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Тест создан успешно!');
+                    document.getElementById('createTestForm').reset();
+                })
+                .catch(error => {
+                    console.error('Ошибка при создании теста:', error);
+                    alert('Ошибка при создании теста');
+                });
+            });
+
+        document.getElementById('addTestInfoForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Останавливаем стандартную отправку формы
+
+            // Получаем значения из полей формы
+            const testGroupForTest = document.getElementById('testGroupForTest').value;
+            const testId = document.getElementById('testId').value;
+            const studentId = document.getElementById('studentId').value;
+            const attendance = document.getElementById('attendance').value;
+            const mark = document.getElementById('mark').value;
+
+            // Проверяем, что все необходимые поля заполнены
+            if (!testGroupForTest || !testId || !studentId || !attendance) {
+                alert('Пожалуйста, заполните все обязательные поля!');
+                return;
+            }
+
+            // Формируем объект с данными
+            const formData = {
+                testGroupForTest,
+                testId,
+                studentId,
+                attendance,
+                mark: mark ? parseInt(mark) : null  // Преобразуем оценку в число, если оно есть
+            };
+
+            // Отправляем данные на сервер
+            fetch('/api/teacher/visitMarks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`  // Токен для авторизации
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Информация о тесте успешно добавлена!');
+                    document.getElementById('addTestInfoForm').reset();  // Очистить форму после отправки
+                } else {
+                    //
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении информации:', error);
+            });
+        });
+
+
+    </script>
+</body>
+</html>
