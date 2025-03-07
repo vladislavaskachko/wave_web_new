@@ -18,6 +18,7 @@ var teacherController = require('../controllers/teacherController');
 var studentController = require('../controllers/studentController');
 var gradeTeacherController = require('../controllers/gradeTeacherController');
 var gradeParentController = require('../controllers/gradeParentController');
+var scheduleTeacherController = require('../controllers/scheduleTeacherController')
 var userController = require('../controllers/userController')
 const parentsController = require('../controllers/parentsController');
 
@@ -42,6 +43,7 @@ router.post('/api/teacher/addLessonDate', attTeacherController.addLessonDate);
 router.get('/api/teacher/lessons', attTeacherController.getLessonsByGroup);
 router.post('/api/teacher/deleteLessonDate', attTeacherController.deleteLessonDate);
 
+router.get('/api/teacher/schLessons', scheduleTeacherController.getLessonsForTeacher);
 
 router.get('/api/director/days', scheduleDirectorController.getDays);
 router.get('/api/director/rooms', scheduleDirectorController.getRooms);
