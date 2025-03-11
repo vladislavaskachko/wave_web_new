@@ -150,6 +150,31 @@
                 }));
             };
 
+            // Удаление курса
+            const deleteCourse = (courseId) => {
+                fetch(`http://localhost:1337/api/courses/${courseId}`, {
+                    method: 'DELETE',
+                }).then(response => response.json())
+                  .then(data => {
+                      alert(data.message);
+                      setCourses(prev => prev.filter(course => course.course_id !== courseId)); // Обновляем список курсов
+                  });
+            };
+
+            // Удаление группы
+            const deleteGroup = (groupId) => {
+                fetch(`http://localhost:1337/api/groups/${groupId}`, {
+                    method: 'DELETE',
+                }).then(response => response.json())
+                  .then(data => {
+                      alert(data.message);
+                      setCourses(prev => prev.map(course => ({
+                          ...course,
+                          groups: course.groups.filter(group => group.group_id !== groupId)
+                      }))); // Обновляем список групп
+                  });
+            };
+
             return (
                 <div>
                     <h1>Добавить новый курс</h1>
@@ -184,17 +209,17 @@
                                 <div className="course" onClick={() => toggleExpand(course.course_id)}>
                                     {expanded[course.course_id] ? '▼' : '▶'} {course.course_name} (Время: {course.course_time}, Цена: {course.course_price}₽)
                                 </div>
+                                <button onClick={() => deleteCourse(course.course_id)}>Удалить курс</button> {/* Кнопка для удаления */}
                                 {expanded[course.course_id] && (
                                     <ul>
                                         {course.groups.map(group => (
                                             <li key={group.group_id} className="group">
                                                 {group.group_name} (Преподаватель: {group.group_teacher_id})
+                                                <button onClick={() => deleteGroup(group.group_id)}>Удалить группу</button> {/* Кнопка для удаления группы */}
                                             </li>
                                         ))}
                                         <li className="group">
                                             <input type="text" id={`groupName-${course.course_id}`} placeholder="Название группы" />
-
-                                            {/* Выпадающий список преподавателей */}
                                             <select id={`teacherId-${course.course_id}`}>
                                                 <option value="">Выберите преподавателя</option>
                                                 {teachers.map(teacher => (
@@ -203,7 +228,6 @@
                                                     </option>
                                                 ))}
                                             </select>
-
                                             <button onClick={() => addGroup(course.course_id)}>Добавить группу</button>
                                         </li>
                                     </ul>
