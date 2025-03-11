@@ -12,8 +12,8 @@ var scheduleStudentController = require('../controllers/scheduleStudentControlle
 var scheduleParentController = require('../controllers/scheduleParentController');
 var gradeStudentConroller = require('../controllers/gradeStudentController');
 var settingsController = require('../controllers/settingsController');
-var courseController = require('../controllers/courseController');
-var groupController = require('../controllers/groupController');
+const coursesController = require('../controllers/coursesController');
+var groupsController = require('../controllers/groupsController');
 var teacherController = require('../controllers/teacherController');
 var studentController = require('../controllers/studentController');
 var gradeTeacherController = require('../controllers/gradeTeacherController');
@@ -21,7 +21,6 @@ var gradeParentController = require('../controllers/gradeParentController');
 var scheduleTeacherController = require('../controllers/scheduleTeacherController')
 var userController = require('../controllers/userController')
 const parentsController = require('../controllers/parentsController');
-
 
 router.post('/auth/login', authController.login);
 
@@ -74,15 +73,15 @@ router.get('/api/settings/sizes', settingsController.getSizes);
 router.post('/api/settings/add-size', settingsController.addSize);
 router.get('/api/settings/delete-size/:size_id', settingsController.deleteSize);
 
-router.get('/api/courses', courseController.getCourses);  
-router.post('/api/courses', courseController.addCourse);  
-router.put('/api/courses', courseController.updateCourse); 
-router.delete('/api/courses/:course_id', courseController.deleteCourse); 
+router.get('/api/courses', coursesController.getCourses);  
+router.post('/api/courses', coursesController.addCourse);  
+router.put('/api/courses', coursesController.updateCourse); 
+router.delete('/api/courses/:course_id', coursesController.deleteCourse); 
 
-router.get('/api/groups', groupController.getGroups);  
-router.post('/api/groups', groupController.addGroup);  
-router.put('/api/groups', groupController.updateGroup); 
-router.delete('/api/groups/:group_id', groupController.deleteGroup);
+router.get('/api/groups', groupsController.getGroups);  
+router.post('/api/groups', groupsController.addGroup);  
+router.put('/api/groups', groupsController.updateGroup); 
+router.delete('/api/groups/:group_id', groupsController.deleteGroup);
 
 router.get('/api/teachers', teacherController.getTeachers);
 
@@ -94,6 +93,8 @@ router.get('/api/users', userController.getUsers);
 router.post('/api/users/add', userController.addUser);
 router.delete('/api/users/:id', userController.deleteUser);
 router.get('/api/users/:id', userController.getUserDetails);
+
+router.get('/api/courses-with-groups', coursesController.getCoursesWithGroups);
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

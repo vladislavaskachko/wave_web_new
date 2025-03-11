@@ -36,9 +36,15 @@
     <Content Include="controllers\authController.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="controllers\coursesController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\gradeParentController.js" />
     <Content Include="controllers\gradeStudentController.js" />
     <Content Include="controllers\gradeTeacherController.js" />
+    <Content Include="controllers\groupsController.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="controllers\notificationController.js">
       <SubType>Code</SubType>
     </Content>
@@ -68,6 +74,9 @@
     </Content>
     <Content Include="public\attendance.html" />
     <Content Include="public\attTeacher.html" />
+    <Content Include="public\coursesGroupsAdmin.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\gradeParent.html" />
     <Content Include="public\gradeStudent.html" />
     <Content Include="public\index.html">
