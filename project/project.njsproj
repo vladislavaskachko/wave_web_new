@@ -51,9 +51,6 @@
     <Content Include="controllers\parentsController.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="controllers\paymentController.js">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="controllers\scheduleParentController.js" />
     <Content Include="controllers\scheduleStudentController.js" />
     <Content Include="controllers\scheduleDirectorController.js" />
@@ -66,9 +63,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="css\styles.css" />
-    <Content Include="public\adminPayment.html">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="public\adminUser.html">
       <SubType>Code</SubType>
     </Content>
