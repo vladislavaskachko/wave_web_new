@@ -56,7 +56,7 @@
                     localStorage.setItem('authToken', response.token); // Сохраняем токен
                     // Если авторизация успешна, перенаправляем на страницу уведомлений
                     window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
-                    window.location.href = '/coursesGroupsAdmin.html';  // Путь к странице уведомлений
+                    window.location.href = '/adminPayment.html';  // Путь к странице уведомлений
                     //window.location.href = '/adminUser.html';  // Путь к странице уведомлений
                 } else {
                     document.getElementById('errorMessage').textContent = response.message;

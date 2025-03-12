@@ -6,7 +6,6 @@ var notificationController = require('../controllers/notificationController');
 var supportController = require('../controllers/supportController');
 var attendanceController = require('../controllers/attendanceController');
 var attTeacherController = require('../controllers/attTeacherController');
-var paymentController = require('../controllers/paymentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
@@ -21,6 +20,7 @@ var gradeParentController = require('../controllers/gradeParentController');
 var scheduleTeacherController = require('../controllers/scheduleTeacherController')
 var userController = require('../controllers/userController')
 const parentsController = require('../controllers/parentsController');
+const paymentController = require('../controllers/paymentController');
 
 router.post('/auth/login', authController.login);
 
@@ -29,11 +29,7 @@ router.get('/api/notifications', notificationController.getNotifications);
 router.post('/api/notifications', notificationController.addNotification);
 
 router.get('/api/support', supportController.getSupport);
-router.get('/api/groups', paymentController.getGroups);
-router.get('/api/students/:groupName', paymentController.getStudentsByGroup);
-router.post('/api/payments/add-payment', paymentController.addPayment);
-router.get('/api/payments/export/:groupName', paymentController.exportPaymentsToExcel); 
-router.get('/api/payments/:studentId', paymentController.getPaymentsForStudent);
+
 
 router.get('/api/teacher/groups', attTeacherController.getTeacherGroups);
 router.get('/api/teacher/attendance', attTeacherController.getAttendance);
@@ -86,6 +82,7 @@ router.delete('/api/groups/:group_id', groupsController.deleteGroup);
 router.get('/api/teachers', teacherController.getTeachers);
 
 router.get('/api/students', studentController.getStudents);
+router.get('/api/students/by-group', studentController.getStudentsByGroup);
 
 router.get('/api/parents', parentsController.getParents);
 
@@ -95,6 +92,14 @@ router.delete('/api/users/:id', userController.deleteUser);
 router.get('/api/users/:id', userController.getUserDetails);
 
 router.get('/api/courses-with-groups', coursesController.getCoursesWithGroups);
+
+router.post('/api/payment', paymentController.addPayment);
+
+router.get('/api/export/:groupName', paymentController.exportPayments);
+
+router.get('/api/course-info/:studentName/:studentSurname', paymentController.getCourseAndPaymentsInfo);
+
+router.get('/api/payments/:studentName/:studentSurname', paymentController.getStudentPayments);
 
 router.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

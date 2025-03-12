@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление платежами</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .form-container, .info-container {
+            width: 50%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .form-group input, .form-group select {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+        .button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+            .button:hover {
+                background-color: #0056b3;
+            }
+
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+
+        .info-container {
+            text-align: center;
+        }
+
+            .info-container h2 {
+                margin-bottom: 20px;
+            }
+
+            .info-container p {
+                margin: 10px 0;
+            }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function PaymentManager() {
+            const [courses, setCourses] = useState([]);
+            const [groups, setGroups] = useState([]);
+            const [students, setStudents] = useState([]);
+            const [selectedCourse, setSelectedCourse] = useState("");
+            const [selectedGroup, setSelectedGroup] = useState("");
+            const [selectedStudent, setSelectedStudent] = useState("");
+            const [amount, setAmount] = useState("");
+            const [chequeNumber, setChequeNumber] = useState("");
+            const [date, setDate] = useState("");
+            const [studentInfo, setStudentInfo] = useState(null);
+            const [studentPayments, setStudentPayments] = useState([]);
+            const [remainingAmount, setRemainingAmount] = useState(0);
+            const [error, setError] = useState("");
+
+            useEffect(() => {
+                axios.get("http://localhost:1337/api/courses-with-groups")
+                    .then((response) => setCourses(response.data))
+                    .catch((err) => setError("Ошибка при загрузке курсов: " + err.message));
+            }, []);
+
+            useEffect(() => {
+                if (selectedCourse) {
+                    const course = courses.find(c => c.course_id === parseInt(selectedCourse));
+                    setGroups(course ? course.groups : []);
+                    setSelectedGroup("");
+                    setStudents([]);
+                }
+            }, [selectedCourse, courses]);
+
+            useEffect(() => {
+                if (selectedGroup) {
+                    axios.get(`http://localhost:1337/api/students/by-group?groupName=${selectedGroup}`)
+                        .then((response) => setStudents(response.data))
+                        .catch((err) => setError("Ошибка при загрузке студентов: " + err.message));
+                } else {
+                    setStudents([]);
+                }
+            }, [selectedGroup]);
+
+            useEffect(() => {
+                if (selectedStudent) {
+                    const [surname, name] = selectedStudent.split(" ");
+                    // Сначала загружаем все платежи
+                    axios.get(`http://localhost:1337/api/payments/${name}/${surname}`)
+                        .then((response) => {
+                            setStudentPayments(response.data);
+
+                            // Суммируем все платежи
+                            const totalPaid = response.data.reduce((sum, payment) => sum + payment.payment_sum, 0);
+
+                            // После загрузки платежей, грузим информацию о студенте
+                            axios.get(`http://localhost:1337/api/course-info/${name}/${surname}`)
+                                .then((res) => {
+                                    setStudentInfo(res.data);
+                                    const remainingAmount = res.data.totalPrice - totalPaid;
+                                    setRemainingAmount(remainingAmount);
+                                })
+                                .catch((err) => setError("Ошибка при загрузке информации о студенте: " + err.message));
+                        })
+                        .catch((err) => setError("Ошибка при загрузке платежей: " + err.message));
+                } else {
+                    setStudentInfo(null);
+                    setStudentPayments([]);
+                    setRemainingAmount(0);
+                }
+            }, [selectedStudent]);
+
+            const handleAddPayment = async (e) => {
+                e.preventDefault();
+                if (!selectedGroup || !selectedStudent || !amount || !chequeNumber || !date) {
+                    setError("Все поля обязательны для заполнения.");
+                    return;
+                }
+                try {
+                    const [surname, name] = selectedStudent.split(" ");
+                    await axios.post("http://localhost:1337/api/payment", {
+                        groupName: selectedGroup,
+                        studentName: name,
+                        studentSurname: surname,
+                        amount,
+                        chequeNumber,
+                        date
+                    });
+                    setAmount("");
+                    setChequeNumber("");
+                    setDate("");
+                    setError("");
+                    // После добавления платежа снова загружаем платежи и обновляем данные
+                    axios.get(`http://localhost:1337/api/payments/${name}/${surname}`)
+                        .then((response) => {
+                            setStudentPayments(response.data);
+                            const totalPaid = response.data.reduce((sum, payment) => sum + payment.payment_sum, 0);
+                            if (studentInfo) {
+                                const remainingAmount = studentInfo.totalPrice - totalPaid;
+                                setRemainingAmount(remainingAmount);
+                            }
+                        })
+                        .catch((err) => setError("Ошибка при загрузке платежей: " + err.message));
+                } catch (err) {
+                    setError("Ошибка при добавлении платежа: " + err.message);
+                }
+            };
+
+            return (
+                <div className="container">
+                    <div className="form-container">
+                        <h2>Добавить платеж</h2>
+                        <form onSubmit={handleAddPayment}>
+                            <div className="form-group">
+                                <label>Курс:</label>
+                                <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
+                                    <option value="">Выберите курс</option>
+                                    {courses.map((course) => (
+                                        <option key={course.course_id} value={course.course_id}>{course.course_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Группа:</label>
+                                <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)} disabled={!selectedCourse}>
+                                    <option value="">Выберите группу</option>
+                                    {groups.map((group) => (
+                                        <option key={group.group_id} value={group.group_name}>{group.group_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Студент:</label>
+                                <select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)} disabled={!selectedGroup}>
+                                    <option value="">Выберите студента</option>
+                                    {students.map((student) => (
+                                        <option key={student.student_id} value={student.full_name}>{student.full_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {studentInfo && (
+                                <div className="info-container">
+                                    <h3>Информация о студенте</h3>
+                                    <p><strong>Курс:</strong> {studentInfo.courseName}</p>
+                                    <p><strong>Общая стоимость:</strong> {studentInfo.totalPrice} руб.</p>
+                                    <p><strong>Разовый платеж:</strong> {studentInfo.singlePayment} руб.</p>
+                                    <p><strong>Остаток к оплате:</strong> {remainingAmount} руб.</p>
+                                </div>
+                            )}
+                            <div className="form-group">
+                                <label>Сумма платежа:</label>
+                                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <label>Номер чека:</label>
+                                <input type="text" value={chequeNumber} onChange={(e) => setChequeNumber(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <label>Дата платежа:</label>
+                                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                            </div>
+                            {error && <p className="error">{error}</p>}
+                            <button type="submit" className="button">Добавить платеж</button>
+                        </form>
+                    </div>
+
+                    {studentPayments.length > 0 && (
+                        <div className="form-container">
+                            <h2>История платежей</h2>
+                            <table border="1" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Сумма</th>
+                                        <th>Номер чека</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {studentPayments.map((payment) => {
+                                        const formattedDate = new Date(payment.payment_date);
+                                        const validDate = isNaN(formattedDate.getTime()) ? "Некорректная дата" : formattedDate.toLocaleDateString();
+                                        return (
+                                            <tr key={payment.payment_id}>
+                                                <td>{validDate}</td>
+                                                <td>{payment.payment_sum} руб.</td>
+                                                <td>{payment.payment_details}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<PaymentManager />, document.getElementById('root'));
+    </script>
+</body>
+</html>
+
