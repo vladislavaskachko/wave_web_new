@@ -46,18 +46,17 @@ exports.getCoursesWithGroups = (req, res) => {
 
 // Добавить новый курс
 exports.addCourse = (req, res) => {
-    const { name, time, price } = req.body;
-    // Добавьте проверку, чтобы убедиться, что данные действительно получены
-    console.log('Полученные данные курса:', { name, time, price });
+    const { name, time, price, size_id, scheme_id } = req.body;
+    console.log('Полученные данные курса:', { name, time, price, size_id, scheme_id });
 
-    if (!name || !time || !price) {
+    if (!name || !time || !price || !size_id || !scheme_id) {
         return res.status(400).json({ message: 'Все поля обязательны' });
     }
 
     // Дальше идет запрос в базу данных
     db.query(
-        'INSERT INTO course (course_name, course_time, course_price) VALUES (?, ?, ?)',
-        [name, time, price],
+        'INSERT INTO course (course_name, course_time, course_price, course_size_id, course_scheme_id) VALUES (?, ?, ?, ?, ?)',
+        [name, time, price, size_id, scheme_id],
         (err, result) => {
             if (err) return res.status(500).json(err);
             res.json({ message: 'Курс добавлен', course_id: result.insertId });

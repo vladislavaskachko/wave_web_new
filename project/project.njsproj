@@ -85,6 +85,9 @@
     <Content Include="public\notifications.html">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="public\parentPayments.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="public\scheduleParent.html" />
     <Content Include="public\scheduleStudent.html" />
     <Content Include="public\scheduleDirector.html" />

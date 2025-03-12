@@ -63,6 +63,55 @@
                 border: 1px solid #ccc;
                 border-radius: 4px;
             }
+
+        .student-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+            .student-popup div {
+                background: white;
+                padding: 20px;
+                border-radius: 5px;
+                max-width: 500px;
+                width: 100%;
+                text-align: center;
+            }
+
+            .student-popup input[type="text"] {
+                margin-bottom: 15px;
+                padding: 8px;
+                width: 100%;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
+
+            .student-popup button {
+                margin-top: 10px;
+            }
+
+        .student-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+            .student-item input {
+                margin-right: 10px;
+            }
     </style>
 </head>
 <body>
@@ -76,103 +125,126 @@
             const [courses, setCourses] = React.useState([]);
             const [expanded, setExpanded] = React.useState({});
             const [teachers, setTeachers] = React.useState([]);
+            const [students, setStudents] = React.useState([]);
+            const [sizes, setSizes] = React.useState([]);
+            const [schemes, setSchemes] = React.useState([]);
             const [newCourse, setNewCourse] = React.useState({
                 name: '',
                 time: '',
-                price: ''
+                price: '',
+                sizeId: '',
+                schemeId: '',
             });
+            const [showPopup, setShowPopup] = React.useState(null);
+            const [searchTerm, setSearchTerm] = React.useState("");
+            const [selectedStudents, setSelectedStudents] = React.useState(new Set());
+            const [groupStudents, setGroupStudents] = React.useState({});
 
-            // Загружаем курсы и преподавателей при монтировании компонента
             React.useEffect(() => {
                 fetch('/api/courses-with-groups')
                     .then(response => response.json())
                     .then(data => setCourses(data));
 
-                // Получаем список преподавателей
                 fetch('/api/teachers')
                     .then(response => response.json())
                     .then(data => setTeachers(data));
+
+                fetch('/api/students')
+                    .then(response => response.json())
+                    .then(data => setStudents(data));
+
+                fetch('/api/settings/sizes')
+                    .then(response => response.json())
+                    .then(data => setSizes(data))
+                    .catch(error => console.error('Ошибка при загрузке размеров:', error));
+
+                fetch('/api/settings/schemes')
+                    .then(response => response.json())
+                    .then(data => setSchemes(data))
+                    .catch(error => console.error('Ошибка при загрузке схем:', error));
             }, []);
 
-            // Переключение состояния раскрытия курса
             const toggleExpand = (courseId) => {
                 setExpanded(prev => ({ ...prev, [courseId]: !prev[courseId] }));
             };
 
-            // Добавление группы
-            const addGroup = (courseId) => {
-                const name = document.getElementById(`groupName-${courseId}`).value;
-                const teacherSelect = document.getElementById(`teacherId-${courseId}`);
-                const teacher_id = teacherSelect.value;
-
-                if (!name || !teacher_id) {
-                    alert("Введите название группы и выберите преподавателя!");
-                    return;
-                }
-
-                fetch('http://localhost:1337/api/groups', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, teacher_id, course_id: courseId })
-                }).then(response => response.json())
-                  .then(data => {
-                      alert(data.message);
-                      location.reload();
-                  });
-            };
-
-            // Добавление нового курса
             const handleAddCourse = () => {
-                const { name, time, price } = newCourse;
-
-                if (!name || !time || !price) {
-                    alert("Заполните все поля курса!");
+                const { name, time, price, sizeId, schemeId } = newCourse;
+                if (!name || !time || !price || !sizeId || !schemeId) {
+                    alert('Пожалуйста, заполните все поля.');
                     return;
                 }
 
-                fetch('http://localhost:1337/api/courses', {
+                fetch('/api/courses', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, time, price })
-                }).then(response => response.json())
-                  .then(data => {
-                      alert(data.message);
-                      location.reload();
-                  });
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name,
+                        time,
+                        price,
+                        size_id: sizeId,
+                        scheme_id: schemeId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message === 'Курс добавлен') {
+                        alert('Курс добавлен успешно');
+                        setNewCourse({
+                            name: '',
+                            time: '',
+                            price: '',
+                            sizeId: '',
+                            schemeId: ''
+                        });
+                        fetchCourses();
+                    } else {
+                        alert('Ошибка при добавлении курса');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при добавлении курса:', error);
+                    alert('Произошла ошибка');
+                });
             };
 
-            // Обработка изменения значений полей для нового курса
-            const handleInputChange = (e) => {
-                const { id, value } = e.target;
-                setNewCourse(prev => ({
-                    ...prev,
-                    [id]: value
-                }));
+            const fetchCourses = () => {
+                fetch('/api/courses-with-groups')
+                    .then(response => response.json())
+                    .then(data => setCourses(data))
+                    .catch(error => console.error('Ошибка при загрузке курсов:', error));
             };
 
-            // Удаление курса
-            const deleteCourse = (courseId) => {
-                fetch(`http://localhost:1337/api/courses/${courseId}`, {
-                    method: 'DELETE',
-                }).then(response => response.json())
-                  .then(data => {
-                      alert(data.message);
-                      setCourses(prev => prev.filter(course => course.course_id !== courseId)); // Обновляем список курсов
-                  });
+            const handleSearchChange = (e) => {
+                setSearchTerm(e.target.value);
             };
 
-            // Удаление группы
-            const deleteGroup = (groupId) => {
-                fetch(`http://localhost:1337/api/groups/${groupId}`, {
-                    method: 'DELETE',
-                }).then(response => response.json())
-                  .then(data => {
-                      alert(data.message);
-                      setCourses(prev => prev.map(course => ({
-                          ...course,
-                          groups: course.groups.filter(group => group.group_id !== groupId)
-                      }))); // Обновляем список групп
-                  });
+            const toggleStudentSelection = (studentId) => {
+                setSelectedStudents(prev => {
+                    const updated = new Set(prev);
+                    if (updated.has(studentId)) {
+                        updated.delete(studentId);
+                    } else {
+                        updated.add(studentId);
+                    }
+                    return updated;
+                });
+            };
+
+            const filteredStudents = students.filter(student =>
+                `${student.user_surname} ${student.user_name} ${student.user_patronymic}`
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+            );
+
+            const loadStudentsByGroup = (groupId) => {
+                fetch(`/api/students/by-group?groupName=${groupId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        setGroupStudents(prev => ({ ...prev, [groupId]: data }));
+                    });
             };
 
             return (
@@ -184,22 +256,49 @@
                             type="text"
                             placeholder="Название курса"
                             value={newCourse.name}
-                            onChange={handleInputChange}
+                            onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
                         />
                         <input
                             id="time"
                             type="text"
                             placeholder="Время курса"
                             value={newCourse.time}
-                            onChange={handleInputChange}
+                            onChange={(e) => setNewCourse({ ...newCourse, time: e.target.value })}
                         />
                         <input
                             id="price"
                             type="number"
                             placeholder="Цена курса"
                             value={newCourse.price}
-                            onChange={handleInputChange}
+                            onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
                         />
+
+                        {/* Выпадающий список для размера */}
+                        <select
+                            value={newCourse.sizeId}
+                            onChange={(e) => setNewCourse({ ...newCourse, sizeId: e.target.value })}
+                        >
+                            <option value="">Выберите размер</option>
+                            {sizes.map(size => (
+                                <option key={size.size_id} value={size.size_id}>
+                                    {size.size_value} 
+                                </option>
+                            ))}
+                        </select>
+
+                        {/* Выпадающий список для схемы */}
+                        <select
+                            value={newCourse.schemeId}
+                            onChange={(e) => setNewCourse({ ...newCourse, schemeId: e.target.value })}
+                        >
+                            <option value="">Выберите схему</option>
+                            {schemes.map(scheme => (
+                                <option key={scheme.scheme_id} value={scheme.scheme_id}>
+                                    {scheme.scheme_value}
+                                </option>
+                            ))}
+                        </select>
+
                         <button onClick={handleAddCourse}>Добавить курс</button>
                     </div>
 
@@ -209,27 +308,59 @@
                                 <div className="course" onClick={() => toggleExpand(course.course_id)}>
                                     {expanded[course.course_id] ? '▼' : '▶'} {course.course_name} (Время: {course.course_time}, Цена: {course.course_price}₽)
                                 </div>
-                                <button onClick={() => deleteCourse(course.course_id)}>Удалить курс</button> {/* Кнопка для удаления */}
                                 {expanded[course.course_id] && (
                                     <ul>
                                         {course.groups.map(group => (
                                             <li key={group.group_id} className="group">
                                                 {group.group_name} (Преподаватель: {group.group_teacher_id})
-                                                <button onClick={() => deleteGroup(group.group_id)}>Удалить группу</button> {/* Кнопка для удаления группы */}
+                                                <button>Удалить группу</button>
+
+                                                {/* Стрелочка для добавления студентов в группу */}
+                                                <div className="group-students-toggle" onClick={() => loadStudentsByGroup(group.group_name)}>
+                                                    {groupStudents[group.group_name] ? '▼' : '▶'} Показать студентов
+                                                </div>
+
+                                                {/* Всплывающее окно для выбора студентов */}
+                                                {showPopup === group.group_id && (
+                                                    <div className="student-popup">
+                                                        <div>
+                                                            <h3>Выберите студентов для добавления в группу</h3>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Поиск студента..."
+                                                                value={searchTerm}
+                                                                onChange={handleSearchChange}
+                                                            />
+                                                            <ul className="student-list">
+                                                                {filteredStudents.map(student => (
+                                                                    <li key={student.student_id} className="student-item">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={selectedStudents.has(student.student_id)}
+                                                                            onChange={() => toggleStudentSelection(student.student_id)}
+                                                                        />
+                                                                        {student.user_surname} {student.user_name} {student.user_patronymic} — {student.user_phone}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                            <button onClick={() => addStudentsToGroup(group.group_id)}>Добавить выбранных студентов</button>
+                                                            <button onClick={closeStudentPopup}>Закрыть</button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Отображение студентов внутри группы */}
+                                                {groupStudents[group.group_name] && (
+                                                    <ul>
+                                                        {groupStudents[group.group_name].map(student => (
+                                                            <li key={student.student_id}>
+                                                                {student.full_name}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
                                             </li>
                                         ))}
-                                        <li className="group">
-                                            <input type="text" id={`groupName-${course.course_id}`} placeholder="Название группы" />
-                                            <select id={`teacherId-${course.course_id}`}>
-                                                <option value="">Выберите преподавателя</option>
-                                                {teachers.map(teacher => (
-                                                    <option key={teacher.teacher_id} value={teacher.teacher_id}>
-                                                        {teacher.user_surname} {teacher.user_name} {teacher.user_patronymic}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <button onClick={() => addGroup(course.course_id)}>Добавить группу</button>
-                                        </li>
                                     </ul>
                                 )}
                             </li>
@@ -243,3 +374,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+

@@ -70,3 +70,41 @@ exports.deleteGroup = (req, res) => {
         res.json({ message: 'Группа удалена' });
     });
 };
+
+exports.addChildToGroup = (req, res) => {
+    const { child_id, group_id } = req.body;
+
+    // Проверяем, что child_id и group_id переданы
+    if (!child_id || !group_id) {
+        return res.status(400).json({ error: "Не указаны child_id или group_id" });
+    }
+
+    // Добавляем ребенка в группу
+    db.query('INSERT INTO students_groups (student_id, group_id) VALUES (?, ?)', [child_id, group_id], (err, results) => {
+        if (err) {
+            console.error("Ошибка добавления ребенка в группу:", err);  // Выводим подробную ошибку на сервер
+            return res.status(500).json({ error: "Ошибка добавления ребенка в группу" });
+        }
+        res.json({ message: 'Ребенок добавлен в группу успешно' });
+    });
+};
+exports.getGroupNameById = (req, res) => {
+    const groupId = req.query.groupId; // Получаем ID группы из query параметра
+
+    if (!groupId) {
+        return res.status(400).json({ error: 'groupId is required' });
+    }
+
+    db.query('SELECT group_name FROM groups WHERE group_id = ?', [groupId], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Group not found' });
+        }
+
+        res.json({ groupName: results[0].group_name });
+    });
+};
