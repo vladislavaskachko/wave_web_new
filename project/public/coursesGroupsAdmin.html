@@ -190,7 +190,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.message === 'Курс добавлен') {
                         alert('Курс добавлен успешно');
                         setNewCourse({
                             name: '',
@@ -200,9 +199,6 @@
                             schemeId: ''
                         });
                         fetchCourses();
-                    } else {
-                        alert('Ошибка при добавлении курса');
-                    }
                 })
                 .catch(error => {
                     console.error('Ошибка при добавлении курса:', error);

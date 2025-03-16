@@ -89,8 +89,11 @@ router.get('/api/parents', parentsController.getParents);
 
 router.get('/api/users', userController.getUsers);
 router.post('/api/users/add', userController.addUser);
-router.delete('/api/users/:id', userController.deleteUser);
+router.post('/api/users/:id/archive', userController.archiveUser);
+router.post('/api/users/:id/restore', userController.restoreUser);
 router.get('/api/users/:id', userController.getUserDetails);
+router.get('/api/users/get-archived', userController.getArchivedUsers);
+router.get('/api/users/get-active', userController.getActiveUsers);
 
 router.get('/api/courses-with-groups', coursesController.getCoursesWithGroups);
 
