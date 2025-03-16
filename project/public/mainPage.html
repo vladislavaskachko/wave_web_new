@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Главная страница</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            overflow-x: hidden;
+        }
+        /* Кнопка для открытия/закрытия меню */
+        .menu-toggle {
+            position: fixed;
+            right: 10px;
+            top: 10px;
+            background: #002F6C;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        /* Боковое меню (изначально спрятано за правым краем) */
+        .sidebar {
+            position: fixed;
+            right: -250px;
+            top: 0;
+            width: 250px;
+            height: 100%;
+            background: #002F6C;
+            color: white;
+            padding: 20px;
+            padding-top: 60px;
+            box-sizing: border-box;
+            transition: right 0.3s;
+            z-index: 999;
+        }
+
+            .sidebar button {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 10px;
+                background: white;
+                color: #002F6C;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+        /* Основной контент, который сдвигается при открытии меню */
+        .main-content {
+            transition: transform 0.3s;
+        }
+        /* Обертка для картинки и контактов с одинаковой фиксированной шириной */
+        .content-wrapper {
+            width: 800px;
+            max-width: 100%;
+            margin: 20px auto;
+        }
+        /* Стили для картинки */
+        .image-container img {
+            width: 100%;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        /* Блок с контактами */
+        .contacts {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Кнопка для открытия/закрытия меню -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    <!-- Боковое меню справа -->
+    <div class="sidebar" id="sidebar">
+        <button onclick="login()">Войти</button>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="main-content" id="mainContent">
+        <div class="content-wrapper">
+            <!-- Картинка -->
+            <div class="image-container">
+                <img src="image.png" alt="Изображение" />
+            </div>
+            <!-- Контакты -->
+            <div class="contacts">
+                <h2>Контакты</h2>
+                <p>Email: example@example.com</p>
+                <p>Телефон: +7 999 123 45 67</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let menuOpen = false;
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            if (menuOpen) {
+                sidebar.style.right = '-250px';
+                mainContent.style.transform = 'translateX(0)';
+            } else {
+                sidebar.style.right = '0';
+                mainContent.style.transform = 'translateX(-250px)';
+            }
+            menuOpen = !menuOpen;
+        }
+        function login() {
+            window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

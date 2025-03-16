@@ -66,6 +66,8 @@
 
 </head>
 <body>
+    <div id="sidebar-container"></div>
+
     <div class="container">
         <h1>Расписание</h1>
         <!-- Здесь будут динамически добавляться дни недели -->
@@ -73,8 +75,21 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+
+            fetch('/sidebar.html')
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('sidebar-container').innerHTML = html;
+                    // После загрузки меню вызываем его скрипты
+                    const scripts = document.getElementById('sidebar-container').getElementsByTagName('script');
+                    for (let script of scripts) {
+                        eval(script.innerText);
+                    }
+                })
+                .catch(error => console.error('Ошибка при загрузке меню:', error));
+
             // Загружаем дни недели с сервера
-            fetch('/api/director/days') // Замените на свой API-эндпоинт для получения дней
+            fetch('/api/director/days')
                 .then(response => response.json())
                 .then(responseData => {
                     if (responseData && Array.isArray(responseData.days)) {
@@ -137,12 +152,12 @@
                                 scheduleItem.classList.add('schedule-item');
 
                                 scheduleItem.innerHTML = `
-                                    <span>${lesson.time}</span>
-                                    <span>${lesson.room}</span>
-                                    <span>${lesson.group}</span>
-                                    <span>${lesson.teacher_name}</span>
-                                    <span>${lesson.subject}</span>
-                                `;
+                                                            <span>${lesson.time}</span>
+                                                            <span>${lesson.room}</span>
+                                                            <span>${lesson.group}</span>
+                                                            <span>${lesson.teacher_name}</span>
+                                                            <span>${lesson.subject}</span>
+                                                        `;
                                 scheduleDiv.appendChild(scheduleItem);
                             });
                             resolve(true); // Уроки есть, возвращаем true

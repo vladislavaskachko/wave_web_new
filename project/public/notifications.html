@@ -38,7 +38,8 @@
 
     <div id="notificationStack"></div>
 
-    <script>// Функция для получения уведомлений с сервера
+    <script>
+    // Функция для получения уведомлений с сервера
         function loadNotifications() {
             var request = new XMLHttpRequest();
             request.open('GET', 'http://localhost:1337/api/notifications', true);
@@ -89,7 +90,7 @@
             request.send();
         }
 
-  
+
         window.onload = loadNotifications;</script>
 
 </body>

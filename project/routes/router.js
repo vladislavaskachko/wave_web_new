@@ -23,7 +23,11 @@ const parentsController = require('../controllers/parentsController');
 const paymentController = require('../controllers/paymentController');
 const { group } = require('console');
 
+var sidebarController = require('../controllers/sidebarController');
+router.get('/api/sidebar', sidebarController.getSidebarData);
+
 router.post('/auth/login', authController.login);
+router.post('/auth/getRoles', authController.getRoles);
 
 router.get('/api/notifications', notificationController.getNotifications);
 
@@ -109,7 +113,7 @@ router.get('/api/group-name-by-id', groupsController.getGroupNameById);
 
 
 router.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'mainPage.html'));
 });
 
 router.use(express.static(path.join(__dirname, '..', 'public')));
