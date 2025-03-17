@@ -69,6 +69,12 @@
             loadRoles(login);
         }
 
+        function closeModal(event) {
+            if (event.target === document.getElementById('loginModalOverlay')) {
+                document.getElementById('loginModalOverlay').style.display = 'none';
+            }
+        }
+
         function loadRoles(login) {
             fetch('http://localhost:1337/auth/getRoles', {
                 method: 'POST',
@@ -101,18 +107,46 @@
         }
 
             // Обрабатываем ответ от сервера
-            request.onload = function () {
-                var response = JSON.parse(request.responseText);
-                if (request.status === 200) {
-                    localStorage.setItem('authToken', response.token); // Сохраняем токен
-                    // Если авторизация успешна, перенаправляем на страницу уведомлений
-                    window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
-                    window.location.href = '/coursesGroupsAdmin.html';  // Путь к странице уведомлений
-                    //window.location.href = '/adminUser.html';  // Путь к странице уведомлений
-                } else {
-                    document.getElementById('errorMessage').textContent = response.message;
-                }
-            };
+            //request.onload = function () {
+            //    var response = JSON.parse(request.responseText);
+            //    if (request.status === 200) {
+            //        localStorage.setItem('authToken', response.token); // Сохраняем токен
+            //        // Если авторизация успешна, перенаправляем на страницу уведомлений
+            //        window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
+            //        window.location.href = '/coursesGroupsAdmin.html';  // Путь к странице уведомлений
+            //        //window.location.href = '/adminUser.html';  // Путь к странице уведомлений
+            //    } else {
+            //        document.getElementById('errorMessage').textContent = response.message;
+            //    }
+            //};
+
+            //fetch('http://localhost:1337/auth/login', {
+            //    method: 'POST',
+            //    headers: { 'Content-Type': 'application/json' },
+            //    body: JSON.stringify({ login, password, role })
+            //})
+            //    .then(response => response.json())
+            //    .then(data => {
+            //        if (data.token) {
+            //            localStorage.setItem('authToken', data.token);
+            //            let redirectMap = {
+            //                '2': '/scheduleTeacher.html',
+            //                '3': '/scheduleStudent.html',
+            //                '4': '/gradeParent.html',
+            //                '1': '/scheduleDirector.html'
+            //            };
+            //            window.location.href = redirectMap[role] || '/';
+            //        } else {
+            //            document.getElementById('errorMessage').textContent = data.message;
+            //        }
+            //    })
+            //    .catch(() => {
+            //        document.getElementById('errorMessage').textContent = 'Ошибка авторизации';
+            //    });
+        function handleLogin() {
+            let login = document.getElementById('login').value;
+            let password = document.getElementById('password').value;
+            let role = document.getElementById('userRole').value;
 
             fetch('http://localhost:1337/auth/login', {
                 method: 'POST',
@@ -123,12 +157,13 @@
                 .then(data => {
                     if (data.token) {
                         localStorage.setItem('authToken', data.token);
-                        let redirectMap = {
-                            '2': '/scheduleTeacher.html',
-                            '3': '/scheduleStudent.html',
-                            '4': '/gradeParent.html',
-                            '1': '/scheduleDirector.html'
-                        };
+                        localStorage.setItem('userRole', role);
+                        if (role === '1') {
+                            window.location.href = '/adminNotifications.html';
+                        } else {
+                            // Для всех остальных пользователей перенаправляем на страницу notifications
+                            window.location.href = '/notifications.html';
+                        }
                         window.location.href = redirectMap[role] || '/';
                     } else {
                         document.getElementById('errorMessage').textContent = data.message;
@@ -138,6 +173,7 @@
                     document.getElementById('errorMessage').textContent = 'Ошибка авторизации';
                 });
         }
+
     </script>
 
 </body>

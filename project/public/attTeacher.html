@@ -4,8 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учет посещаемости</title>
+    <style>
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
+    </style>
 </head>
 <body>
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/notifications.html'">🔔</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/attTeacher.html'">✍️</button>
+        <button onclick="location.href='/gradeTeacher.html'">💯</button>
+        <button onclick="location.href='/scheduleTeacher.html'">📅</button>
+        <button onclick="location.href='/support.html'">🆘</button>
+    </div>
     <h1>Учет посещаемости</h1>
 
     <label for="groupPicker">Выберите группу:</label>

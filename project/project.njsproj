@@ -32,6 +32,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="controllers\attendanceController.js" />
+    <Content Include="controllers\attParentController.js" />
     <Content Include="controllers\attTeacherController.js" />
     <Content Include="controllers\authController.js">
       <SubType>Code</SubType>
@@ -66,6 +67,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="css\styles.css" />
+    <Content Include="public\attParent.html" />
     <Content Include="public\image.png" />
     <Content Include="public\adminPayment.html">
       <SubType>Code</SubType>

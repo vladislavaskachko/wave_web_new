@@ -6,6 +6,7 @@ var notificationController = require('../controllers/notificationController');
 var supportController = require('../controllers/supportController');
 var attendanceController = require('../controllers/attendanceController');
 var attTeacherController = require('../controllers/attTeacherController');
+var attParentController = require('../controllers/attParentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
@@ -23,9 +24,6 @@ const parentsController = require('../controllers/parentsController');
 const paymentController = require('../controllers/paymentController');
 const { group } = require('console');
 
-var sidebarController = require('../controllers/sidebarController');
-router.get('/api/sidebar', sidebarController.getSidebarData);
-
 router.post('/auth/login', authController.login);
 router.post('/auth/getRoles', authController.getRoles);
 
@@ -35,6 +33,8 @@ router.post('/api/notifications', notificationController.addNotification);
 
 router.get('/api/support', supportController.getSupport);
 
+router.get('/api/attendance', attendanceController.getAttendance);
+router.get('/api/parent/attendance', attParentController.getChildAttendance);
 
 router.get('/api/teacher/groups', attTeacherController.getTeacherGroups);
 router.get('/api/teacher/attendance', attTeacherController.getAttendance);

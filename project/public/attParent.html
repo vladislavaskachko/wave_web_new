@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посещаемость</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f4f8;
+        }
+
+        .container {
+            width: 80%;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .selector {
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        select {
+            font-size: 1rem;
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        th {
+            background-color: #1c2983;
+            color: white;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        .no-data, .error-message {
+            text-align: center;
+            color: #888;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Посещаемость</h1>
+            <div class="selector">
+                <label for="childSelector">Выберите ребенка:</label>
+                <select id="childSelector"></select>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Группа</th>
+                    <th>Отметка</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+        <div id="no-data" class="no-data" style="display: none;">Нет данных для отображения</div>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem('authToken');
+            const tableBody = document.getElementById("table-body");
+            const noDataMessage = document.getElementById("no-data");
+            const errorMessage = document.getElementById("error-message");
+            const childSelector = document.getElementById("childSelector");
+
+            if (!token) {
+                errorMessage.textContent = 'Вы не авторизованы. Пожалуйста, войдите в систему.';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            fetch('/api/parent/children', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.children && data.children.length > 0) {
+                        data.children.forEach(child => {
+                            const option = document.createElement("option");
+                            option.value = child.id;
+                            option.textContent = child.name;
+                            childSelector.appendChild(option);
+                        });
+                        loadAttendance(childSelector.value);
+                    } else {
+                        errorMessage.textContent = 'Дети не найдены';
+                        errorMessage.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error('Ошибка при загрузке детей:', err);
+                    errorMessage.textContent = 'Ошибка при загрузке данных детей';
+                    errorMessage.style.display = 'block';
+                });
+
+            childSelector.addEventListener('change', function () {
+                loadAttendance(this.value);
+            });
+
+            function loadAttendance(studentId) {
+                tableBody.innerHTML = '';
+                noDataMessage.style.display = 'none';
+                errorMessage.style.display = 'none';
+
+                fetch('/api/parent/attendance?studentId=' + studentId, {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.attendance) {
+                            if (data.attendance.length === 0) {
+                                noDataMessage.style.display = "block";
+                            } else {
+                                noDataMessage.style.display = "none";
+                                data.attendance.forEach(item => {
+                                    const row = document.createElement("tr");
+                                    row.innerHTML = `
+                                            <td>${item.date}</td>
+                                            <td>${item.group}</td>
+                                            <td>${item.visit}</td>
+                                        `;
+                                    tableBody.appendChild(row);
+                                });
+                            }
+                        } else {
+                            errorMessage.textContent = data.message || 'Ошибка загрузки данных';
+                            errorMessage.style.display = 'block';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Ошибка:', err);
+                        errorMessage.textContent = 'Ошибка при загрузке данных';
+                        errorMessage.style.display = 'block';
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

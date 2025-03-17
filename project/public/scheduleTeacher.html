@@ -91,9 +91,9 @@
     <!-- Фиксированный блок кнопок в правом верхнем углу -->
     <div class="top-right-menu">
         <button onclick="location.href='/notifications.html'">🔔</button>
-        <button onclick="location.href='/gradeTeacher.html'">📖</button>
-        <button onclick="location.href='/attTeacher.html'">📅</button>
-        <button onclick="location.href='/attTeacher.html'">📅</button>
+        <button onclick="location.href='/attTeacher.html'">✍️</button>
+        <button onclick="location.href='/gradeTeacher.html'">💯</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/scheduleTeacher.html'">📅</button>
         <button onclick="location.href='/support.html'">🆘</button>
     </div>
 
@@ -157,11 +157,11 @@
                                 const scheduleItem = document.createElement('div');
                                 scheduleItem.classList.add('schedule-item');
                                 scheduleItem.innerHTML = `
-                      <span>${lesson.time}</span>
-                      <span>${lesson.room}</span>
-                      <span>${lesson.group}</span>
-                      <span>${lesson.subject}</span>
-                    `;
+                          <span>${lesson.time}</span>
+                          <span>${lesson.room}</span>
+                          <span>${lesson.group}</span>
+                          <span>${lesson.subject}</span>
+                        `;
                                 scheduleDiv.appendChild(scheduleItem);
                             });
                             resolve(true);

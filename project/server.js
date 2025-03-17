@@ -1,4 +1,4 @@
-'use strict';
+п»ї'use strict';
 
 const express = require('express');
 const path = require('path');
@@ -18,5 +18,5 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 app.listen(port, function () {
-    console.log('Сервер запущен на http://localhost:' + port);
+    console.log('РЎРµСЂРІРµСЂ Р·Р°РїСѓС‰РµРЅ РЅР° http://localhost:' + port);
 });
