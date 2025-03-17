@@ -92,9 +92,40 @@
             button.delete-btn:hover {
                 background-color: #c82333;
             }
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
     </style>
 </head>
 <body>
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/adminNotifications.html'">🔔</button>
+        <button onclick="location.href='/adminPayment.html'">💰</button>
+        <button onclick="location.href='/scheduleDirector.html'">📅</button>
+        <button onclick="location.href='/adminUser.html'">🧑‍🤝‍🧑</button>
+        <button onclick="location.href='/coursesGroupsAdmin.html'">📚</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/settings.html'">⚙️</button>
+    </div>
     <div class="container">
         <h1>Настройки курсов</h1>
 
@@ -143,7 +174,8 @@
         </div>
     </div>
 
-    <script>document.addEventListener('DOMContentLoaded', function() {
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
             // Получаем элементы формы и таблиц
             const addSchemeForm = document.getElementById('addSchemeForm');
             const addSizeForm = document.getElementById('addSizeForm');
@@ -155,7 +187,7 @@
             loadSizes();
 
             // Добавление новой схемы
-            addSchemeForm.addEventListener('submit', function(event) {
+            addSchemeForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 const schemeValue = document.getElementById('schemeValue').value;
 
@@ -166,16 +198,16 @@
                     },
                     body: JSON.stringify({ scheme_value: schemeValue })
                 })
-                .then(response => response.json())
-                .then(() => {
-                    loadSchemes();  // Перезагружаем список схем
-                    addSchemeForm.reset();
-                })
-                .catch(error => console.error('Ошибка:', error));
+                    .then(response => response.json())
+                    .then(() => {
+                        loadSchemes();  // Перезагружаем список схем
+                        addSchemeForm.reset();
+                    })
+                    .catch(error => console.error('Ошибка:', error));
             });
 
             // Добавление нового размера
-            addSizeForm.addEventListener('submit', function(event) {
+            addSizeForm.addEventListener('submit', function (event) {
                 event.preventDefault();
                 const sizeValue = document.getElementById('sizeValue').value;
 
@@ -186,12 +218,12 @@
                     },
                     body: JSON.stringify({ size_value: sizeValue })
                 })
-                .then(response => response.json())
-                .then(() => {
-                    loadSizes();  // Перезагружаем список размеров
-                    addSizeForm.reset();
-                })
-                .catch(error => console.error('Ошибка:', error));
+                    .then(response => response.json())
+                    .then(() => {
+                        loadSizes();  // Перезагружаем список размеров
+                        addSizeForm.reset();
+                    })
+                    .catch(error => console.error('Ошибка:', error));
             });
 
             // Загрузка схем
@@ -203,9 +235,9 @@
                         schemes.forEach(scheme => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${scheme.scheme_value}</td>
-                                <td><button class="delete-btn" onclick="deleteScheme(${scheme.scheme_id})">Удалить</button></td>
-                            `;
+                                    <td>${scheme.scheme_value}</td>
+                                    <td><button class="delete-btn" onclick="deleteScheme(${scheme.scheme_id})">Удалить</button></td>
+                                `;
                             schemesTableBody.appendChild(row);
                         });
                     });
@@ -220,34 +252,34 @@
                         sizes.forEach(size => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${size.size_value}</td>
-                                <td><button class="delete-btn" onclick="deleteSize(${size.size_id})">Удалить</button></td>
-                            `;
+                                    <td>${size.size_value}</td>
+                                    <td><button class="delete-btn" onclick="deleteSize(${size.size_id})">Удалить</button></td>
+                                `;
                             sizesTableBody.appendChild(row);
                         });
                     });
             }
 
             // Удаление схемы
-            window.deleteScheme = function(schemeId) {
+            window.deleteScheme = function (schemeId) {
                 fetch(`/api/settings/delete-scheme/${schemeId}`, {
                     method: 'GET',
                 })
-                .then(() => {
-                    loadSchemes();  // Перезагружаем список схем
-                })
-                .catch(error => console.error('Ошибка при удалении схемы:', error));
+                    .then(() => {
+                        loadSchemes();  // Перезагружаем список схем
+                    })
+                    .catch(error => console.error('Ошибка при удалении схемы:', error));
             };
 
             // Удаление размера
-            window.deleteSize = function(sizeId) {
+            window.deleteSize = function (sizeId) {
                 fetch(`/api/settings/delete-size/${sizeId}`, {
                     method: 'GET',
                 })
-                .then(() => {
-                    loadSizes();  // Перезагружаем список размеров
-                })
-                .catch(error => console.error('Ошибка при удалении размера:', error));
+                    .then(() => {
+                        loadSizes();  // Перезагружаем список размеров
+                    })
+                    .catch(error => console.error('Ошибка при удалении размера:', error));
             };
         });</script>
 </body>

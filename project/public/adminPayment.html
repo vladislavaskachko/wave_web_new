@@ -76,9 +76,40 @@
             .info-container p {
                 margin: 10px 0;
             }
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
     </style>
 </head>
 <body>
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/adminNotifications.html'">🔔</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/adminPayment.html'">💰</button>
+        <button onclick="location.href='/scheduleDirector.html'">📅</button>
+        <button onclick="location.href='/adminUser.html'">🧑‍🤝‍🧑</button>
+        <button onclick="location.href='/coursesGroupsAdmin.html'">📚</button>
+        <button onclick="location.href='/settings.html'">⚙️</button>
+    </div>
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect } = React;
