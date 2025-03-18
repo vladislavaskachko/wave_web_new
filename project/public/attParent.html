@@ -1,14 +1,13 @@
 ﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Оценки</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Посещаемость</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 20px;
             background-color: #f0f4f8;
         }
 
@@ -108,15 +107,15 @@
     <!-- Фиксированный блок кнопок в правом верхнем углу -->
     <div class="top-right-menu">
         <button onclick="location.href='/notifications.html'">🔔</button>
-        <button onclick="location.href='/attParent.html'">✍</button>
-        <button style="background-color: lightgrey; color: white;" onclick="location.href='/gradeParent.html'">💯</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/attParent.html'">✍</button>
+        <button onclick="location.href='/gradeParent.html'">💯</button>
         <button onclick="location.href='/scheduleParent.html'">📅</button>
         <button onclick="location.href='/parentPayments.html'">💰</button>
         <button onclick="location.href='/support.html'">🆘</button>
     </div>
     <div class="container">
         <div class="header">
-            <h1>Оценки</h1>
+            <h1>Посещаемость</h1>
             <div class="selector">
                 <label for="childSelector">Выберите ребенка:</label>
                 <select id="childSelector"></select>
@@ -125,11 +124,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Название теста</th>
-                    <th>Дата теста</th>
+                    <th>Дата</th>
                     <th>Группа</th>
-                    <th>Посещаемость</th>
-                    <th>Оценка</th>
+                    <th>Отметка</th>
                 </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -164,7 +161,7 @@
                             option.textContent = child.name;
                             childSelector.appendChild(option);
                         });
-                        loadGrades(childSelector.value);
+                        loadAttendance(childSelector.value);
                     } else {
                         errorMessage.textContent = 'Дети не найдены';
                         errorMessage.style.display = 'block';
@@ -177,34 +174,32 @@
                 });
 
             childSelector.addEventListener('change', function () {
-                loadGrades(this.value);
+                loadAttendance(this.value);
             });
 
-            function loadGrades(studentId) {
+            function loadAttendance(studentId) {
                 tableBody.innerHTML = '';
                 noDataMessage.style.display = 'none';
                 errorMessage.style.display = 'none';
 
-                fetch('/api/parent/grades?studentId=' + studentId, {
+                fetch('/api/parent/attendance?studentId=' + studentId, {
                     method: 'GET',
                     headers: { 'Authorization': 'Bearer ' + token }
                 })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.grades) {
-                            if (data.grades.length === 0) {
+                        if (data.attendance) {
+                            if (data.attendance.length === 0) {
                                 noDataMessage.style.display = "block";
                             } else {
                                 noDataMessage.style.display = "none";
-                                data.grades.forEach(item => {
+                                data.attendance.forEach(item => {
                                     const row = document.createElement("tr");
                                     row.innerHTML = `
-                                      <td>${item.testName || "Нет данных"}</td>
-                                      <td>${item.testDate || "Нет данных"}</td>
-                                      <td>${item.group || "Нет данных"}</td>
-                                      <td>${item.attended || "Нет данных"}</td>
-                                      <td>${item.grade ? item.grade : "Нет оценки"}</td>
-                                    `;
+                                                <td>${item.date}</td>
+                                                <td>${item.group}</td>
+                                                <td>${item.visit}</td>
+                                            `;
                                     tableBody.appendChild(row);
                                 });
                             }

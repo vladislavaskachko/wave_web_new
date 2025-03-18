@@ -30,11 +30,13 @@
             padding: 10px;
             background: #ddd;
             border-radius: 5px;
+            background-color: #002F6C;
         }
 
         .day-name {
             font-weight: bold;
             margin-bottom: 5px;
+            color: white;
         }
 
         .schedule {
@@ -61,11 +63,42 @@
                 word-break: break-word; /* Обеспечивает корректный перенос слов */
                 white-space: normal; /* Разрешаем перенос строк */
             }
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
     </style>
 
 
 </head>
 <body>
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/notifications.html'">🔔</button>
+        <button onclick="location.href='/attendance.html'">✍️</button>
+        <button onclick="location.href='/gradeStudent.html'">💯</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/scheduleStudent.html'">📅</button>
+        <button onclick="location.href='/support.html'">🆘</button>
+    </div>
+
     <div class="container">
         <h1>Расписание</h1>
         <!-- Здесь будут динамически добавляться дни недели -->
@@ -74,7 +107,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // Загружаем дни недели с сервера
-            fetch('/api/director/days') // Замените на свой API-эндпоинт для получения дней
+            fetch('/api/director/days')
                 .then(response => response.json())
                 .then(responseData => {
                     if (responseData && Array.isArray(responseData.days)) {
@@ -137,12 +170,12 @@
                                 scheduleItem.classList.add('schedule-item');
 
                                 scheduleItem.innerHTML = `
-                                    <span>${lesson.time}</span>
-                                    <span>${lesson.room}</span>
-                                    <span>${lesson.group}</span>
-                                    <span>${lesson.teacher_name}</span>
-                                    <span>${lesson.subject}</span>
-                                `;
+                                                                <span>${lesson.time}</span>
+                                                                <span>${lesson.room}</span>
+                                                                <span>${lesson.group}</span>
+                                                                <span>${lesson.teacher_name}</span>
+                                                                <span>${lesson.subject}</span>
+                                                            `;
                                 scheduleDiv.appendChild(scheduleItem);
                             });
                             resolve(true); // Уроки есть, возвращаем true

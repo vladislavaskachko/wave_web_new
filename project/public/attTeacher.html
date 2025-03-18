@@ -4,72 +4,241 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Учет посещаемости</title>
+    <style>
+        /* Стиль для всего тела страницы */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        /* Фиксированный блок кнопок в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
+
+        /* Стиль для главного заголовка */
+        h1 {
+            margin: 40px 0 10px 0px;
+            /*padding-left: 20px;*/
+            color: black;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        /* Стиль для заголовков блоков */
+        h2 {
+            color: black;
+            font-size: 24px;
+            font-weight: normal;
+            margin: 10px 0 10px 0; 
+            padding-left: 0; 
+        }
+
+        /* Основной контейнер для формы и таблиц */
+        .content {
+            margin-left: 20px;
+            margin-right: 90px;
+        }
+
+        /* Стиль для блока формы */
+        .form-block {
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+            .form-block label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: normal;
+            }
+
+            .form-block select, .form-block input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 20px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+
+            .form-block button {
+                padding: 10px 20px;
+                background-color: #002F6C;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+                .form-block button:hover {
+                    background-color: #1d47a1;
+                }
+
+            /* Flexbox для расположения выпадающего списка и кнопки в одну строку */
+            .form-block .flex-container {
+                display: flex;
+                align-items: center;
+                gap: 10px; 
+            }
+
+                .form-block .flex-container select {
+                    flex: 1; 
+                }
+
+                .form-block .flex-container button {
+                    flex-shrink: 0; 
+                }
+
+        /* Таблица для отображения посещаемости */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+            table th, table td {
+                padding: 12px;
+                text-align: center;
+                border: 1px solid #ddd;
+            }
+
+            table th {
+                background-color: #002F6C;
+                color: white;
+            }
+        .flex-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .flex-row input[type="date"] {
+                flex: 1;
+                max-width: 25%;
+            }
+
+            .flex-row select {
+                flex: 3;
+            }
+
+            .flex-row button {
+                flex-shrink: 0;
+            }
+    </style>
 </head>
 <body>
-    <h1>Учет посещаемости</h1>
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/notifications.html'">🔔</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/attTeacher.html'">✍️</button>
+        <button onclick="location.href='/gradeTeacher.html'">💯</button>
+        <button onclick="location.href='/scheduleTeacher.html'">📅</button>
+        <button onclick="location.href='/support.html'">🆘</button>
+    </div>
 
-    <label for="groupPicker">Выберите группу:</label>
-    <select id="groupPicker"></select>
+    <!-- Основной контент -->
+    <div class="content">
+        <!-- Главный заголовок -->
+        <h1>Учет посещаемости</h1>
 
-    <button id="loadAttendance">Загрузить посещаемость</button>
+        <!-- Блок для выбора группы и загрузки посещаемости -->
+        <div class="form-block">
+            <label for="groupPicker">Выберите группу:</label>
+            <div class="flex-container">
+                <select id="groupPicker"></select>
+                <button id="loadAttendance">Загрузить посещаемость</button>
+            </div>
+        </div>
 
-    <h2>Добавить урок и отметки</h2>
-    <!-- Форма для добавления даты урока -->
-    <form id="addLessonForm">
-        <label for="lessonDate">Дата урока:</label>
-        <input type="date" id="lessonDate" required>
-        <label for="lessonPicker">Выберите урок:</label>
-        <select id="lessonPicker" required></select>
-        <button type="submit">Добавить дату урока</button>
-    </form>
+        <!-- Блок для добавления урока и отметок -->
+        <h2>Добавить урок и отметки</h2>
+        <div class="form-block">
+            <form id="addLessonForm">
+                <label for="lessonDate">Дата урока:</label>
+                <input type="date" id="lessonDate" required>
 
-    <h2>Редактировать посещаемость</h2>
-    <form id="editAttendanceForm">
-        <label for="studentSelect">Выберите студента:</label>
-        <select id="studentSelect"></select>
+                <label for="lessonPicker">Выберите урок:</label>
+                <select id="lessonPicker" required></select>
 
-        <label for="lessonSelect">Выберите урок:</label>
-        <select id="lessonSelect"></select>
+                <button type="submit">Добавить дату урока</button>
+            </form>
+        </div>
 
-        <label for="statusSelect">Статус:</label>
-        <select id="statusSelect">
-            <option value="+">Присутствовал</option>
-            <option value="-">Отсутствовал</option>
-            <option value="б">Болеет</option>
-            <option value="у">Уважительная</option>
-        </select>
+        <!-- Блок для редактирования посещаемости -->
+        <h2>Редактировать посещаемость</h2>
+        <div class="form-block">
+            <form id="editAttendanceForm">
+                <label for="studentSelect">Выберите студента:</label>
+                <select id="studentSelect"></select>
 
+                <label for="lessonSelect">Выберите урок:</label>
+                <select id="lessonSelect"></select>
 
-        <button type="submit">Сохранить изменения</button>
-    </form>
+                <label for="statusSelect">Статус:</label>
+                <select id="statusSelect">
+                    <option value="+">Присутствовал</option>
+                    <option value="-">Отсутствовал</option>
+                    <option value="б">Болеет</option>
+                    <option value="у">Уважительная</option>
+                </select>
 
-    <!-- Кнопка для удаления урока -->
-    <h2>Удалить урок</h2>
-    <form id="deleteLessonForm">
-        <label for="deleteLessonSelect">Выберите урок для удаления:</label>
-        <select id="deleteLessonSelect" required></select>
+                <button type="submit">Сохранить изменения</button>
+            </form>
+        </div>
 
-        <button type="submit">Удалить урок</button>
-    </form>
+        <!-- Блок для удаления урока -->
+        <h2>Удалить урок</h2>
+        <div class="form-block">
+            <form id="deleteLessonForm">
+                <label for="deleteLessonSelect">Выберите урок для удаления:</label>
+                <select id="deleteLessonSelect" required></select>
 
-    <h2>Посещаемость</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Таблица посещаемости</th>
-            </tr>
-        </thead>
-        <tbody id="attendanceTable"></tbody>
-    </table>
+                <button type="submit">Удалить урок</button>
+            </form>
+        </div>
+
+        <!-- Блок для отображения таблицы посещаемости -->
+        <h2>Посещаемость</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Таблица посещаемости</th>
+                </tr>
+            </thead>
+            <tbody id="attendanceTable"></tbody>
+        </table>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const token = localStorage.getItem('authToken');
+            document.addEventListener('DOMContentLoaded', function () {
+                const token = localStorage.getItem('authToken');
 
             if (!token) {
                 alert('Вы не авторизированы, пожалуйста, войдите в систему.');
-                return;
-            }
+            return;
+                }
 
             // Загружаем студентов и уроки
             function loadStudentsAndLessons(group) {
@@ -120,207 +289,207 @@
                         console.error('Ошибка:', err);
                         alert('Ошибка при загрузке посещаемости');
                     });
-            }
+                }
 
 
             // Загружаем группу, чтобы получить студентов и уроки
             document.getElementById('loadAttendance').addEventListener('click', function () {
-                const group = document.getElementById('groupPicker').value;
+                    const group = document.getElementById('groupPicker').value;
 
-                if (!group) {
-                    alert('Пожалуйста, выберите группу');
-                    return;
-                }
+            if (!group) {
+                alert('Пожалуйста, выберите группу');
+            return;
+                    }
 
-                loadStudentsAndLessons(group);
-            });
+            loadStudentsAndLessons(group);
+                });
 
             // Обработка формы редактирования посещаемости
             document.getElementById('editAttendanceForm').addEventListener('submit', function (event) {
                 event.preventDefault();
 
-                const student = document.getElementById('studentSelect').value;
-                const lesson = document.getElementById('lessonSelect').value;
-                const status = document.getElementById('statusSelect').value;
+            const student = document.getElementById('studentSelect').value;
+            const lesson = document.getElementById('lessonSelect').value;
+            const status = document.getElementById('statusSelect').value;
 
-                const group = document.getElementById('groupPicker').value;
+            const group = document.getElementById('groupPicker').value;
 
-                if (!student || !lesson || !status) {
-                    alert('Пожалуйста, выберите студента, урок и статус');
-                    return;
-                }
+            if (!student || !lesson || !status) {
+                alert('Пожалуйста, выберите студента, урок и статус');
+            return;
+                    }
 
-                fetch('/api/teacher/updateAttendance', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        group,
-                        student,
-                        date: lesson,
-                        status
+            fetch('/api/teacher/updateAttendance', {
+                method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+                        },
+            body: JSON.stringify({
+                group,
+                student,
+                date: lesson,
+            status
+                        })
                     })
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Статус успешно обновлен');
-                        } else {
-                            alert('Ошибка при обновлении статуса');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Ошибка:', err);
-                        alert('Ошибка при обновлении статуса');
-                    });
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                alert('Статус успешно обновлен');
+                            } else {
+                alert('Ошибка при обновлении статуса');
+                            }
+                        })
+                        .catch(err => {
+                console.error('Ошибка:', err);
+            alert('Ошибка при обновлении статуса');
+                        });
+                });
             });
-        });
     </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const token = localStorage.getItem('authToken'); // Получаем токен из localStorage
 
-            if (!token) {
-                alert('Вы не авторизированы, пожалуйста, войдите в систему.');
-                return;
+        if (!token) {
+            alert('Вы не авторизированы, пожалуйста, войдите в систему.');
+        return;
             }
 
-            // Функция для получения данных групп преподавателя
-            function loadTeacherGroups() {
-                fetch('/api/teacher/groups', {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}` // Передаем токен в заголовке
+        // Функция для получения данных групп преподавателя
+        function loadTeacherGroups() {
+            fetch('/api/teacher/groups', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}` // Передаем токен в заголовке
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.groups) {
+                        const groupPicker = document.getElementById('groupPicker');
+                        groupPicker.innerHTML = ''; // Очистить предыдущие группы
+                        data.groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group;
+                            option.textContent = group;
+                            groupPicker.appendChild(option);
+                        });
+                    } else {
+                        alert('Ошибка при загрузке групп');
                     }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.groups) {
-                            const groupPicker = document.getElementById('groupPicker');
-                            groupPicker.innerHTML = ''; // Очистить предыдущие группы
-                            data.groups.forEach(group => {
-                                const option = document.createElement('option');
-                                option.value = group;
-                                option.textContent = group;
-                                groupPicker.appendChild(option);
-                            });
-                        } else {
-                            alert('Ошибка при загрузке групп');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Ошибка:', err);
-                        alert('Ошибка при загрузке данных групп');
-                    });
+                .catch(err => {
+                    console.error('Ошибка:', err);
+                    alert('Ошибка при загрузке данных групп');
+                });
             }
 
-            // Загружаем группы преподавателей
-            loadTeacherGroups();
+        // Загружаем группы преподавателей
+        loadTeacherGroups();
 
-            // Загрузка посещаемости
-            document.getElementById('loadAttendance').addEventListener('click', function () {
+        // Загрузка посещаемости
+        document.getElementById('loadAttendance').addEventListener('click', function () {
                 const group = document.getElementById('groupPicker').value;
 
-                if (!group) {
-                    alert('Пожалуйста, выберите группу');
-                    return;
+        if (!group) {
+            alert('Пожалуйста, выберите группу');
+        return;
                 }
 
-                fetch(`/api/teacher/attendance?group=${group}`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}` // Передаем токен в заголовке
+        fetch(`/api/teacher/attendance?group=${group}`, {
+            method: 'GET',
+        headers: {
+            Authorization: `Bearer ${token}` // Передаем токен в заголовке
                     }
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.attendance) {
                             const uniqueStudents = [];
-                            const uniqueDates = [];
-                            const attendanceData = data.attendance;
+        const uniqueDates = [];
+        const attendanceData = data.attendance;
 
                             // Собираем уникальные студенты и уникальные даты
                             attendanceData.forEach(item => {
                                 if (!uniqueStudents.includes(item.student)) {
-                                    uniqueStudents.push(item.student);
+            uniqueStudents.push(item.student);
                                 }
-                                if (!uniqueDates.includes(item.date)) {
-                                    uniqueDates.push(item.date);
+        if (!uniqueDates.includes(item.date)) {
+            uniqueDates.push(item.date);
                                 }
                             });
 
-                            // Строим таблицу
-                            const tableBody = document.getElementById('attendanceTable');
-                            tableBody.innerHTML = ''; // Очистить таблицу
+        // Строим таблицу
+        const tableBody = document.getElementById('attendanceTable');
+        tableBody.innerHTML = ''; // Очистить таблицу
 
-                            // Строим заголовок с датами
-                            const headerRow = document.createElement('tr');
-                            headerRow.innerHTML = `<th>Студент</th>`;
+        // Строим заголовок с датами
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `<th>Студент</th>`;
                             uniqueDates.forEach(date => {
                                 const th = document.createElement('th');
-                                th.textContent = date;
-                                headerRow.appendChild(th);
+        th.textContent = date;
+        headerRow.appendChild(th);
                             });
-                            tableBody.appendChild(headerRow);
+        tableBody.appendChild(headerRow);
 
                             // Строим строки для студентов
                             uniqueStudents.forEach(student => {
                                 const row = document.createElement('tr');
-                                const studentCell = document.createElement('td');
-                                studentCell.textContent = student;
-                                row.appendChild(studentCell);
+        const studentCell = document.createElement('td');
+        studentCell.textContent = student;
+        row.appendChild(studentCell);
 
                                 uniqueDates.forEach(date => {
                                     const statusCell = document.createElement('td');
                                     const status = attendanceData.find(item => item.student === student && item.date === date)?.status || '?';
-                                    statusCell.textContent = status; // Просто отображаем статус без редактирования
-                                    row.appendChild(statusCell);
+        statusCell.textContent = status; // Просто отображаем статус без редактирования
+        row.appendChild(statusCell);
                                 });
 
-                                tableBody.appendChild(row);
+        tableBody.appendChild(row);
                             });
 
                         } else {
-                            alert('Ошибка при загрузке посещаемости');
+            alert('Ошибка при загрузке посещаемости');
                         }
                     })
                     .catch(err => {
-                        console.error('Ошибка:', err);
-                        alert('Ошибка при загрузке посещаемости');
+            console.error('Ошибка:', err);
+        alert('Ошибка при загрузке посещаемости');
                     });
             });
 
 
-            // Функция для отправки обновлений на сервер
-            function updateAttendanceStatus(student, date, status) {
+        // Функция для отправки обновлений на сервер
+        function updateAttendanceStatus(student, date, status) {
                 const group = document.getElementById('groupPicker').value;
-                fetch('/api/teacher/updateAttendance', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`
+        fetch('/api/teacher/updateAttendance', {
+            method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        group,
-                        student,
-                        date,
-                        status
-                    })
+        body: JSON.stringify({
+            group,
+            student,
+            date,
+            status
+        })
                 })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Статус успешно обновлен');
+            alert('Статус успешно обновлен');
                         } else {
-                            alert('Ошибка при обновлении статуса');
+            alert('Ошибка при обновлении статуса');
                         }
                     })
                     .catch(err => {
-                        console.error('Ошибка:', err);
-                        alert('Ошибка при обновлении статуса');
+            console.error('Ошибка:', err);
+        alert('Ошибка при обновлении статуса');
                     });
             }
 
@@ -329,127 +498,127 @@
         document.addEventListener('DOMContentLoaded', function () {
             const token = localStorage.getItem('authToken');
 
-            if (!token) {
-                alert('Вы не авторизованы, пожалуйста, войдите в систему.');
-                return;
+        if (!token) {
+            alert('Вы не авторизованы, пожалуйста, войдите в систему.');
+        return;
             }
 
-            // Функция для загрузки уроков для выбранной группы
-            function loadLessonsForGroup(group) {
+        // Функция для загрузки уроков для выбранной группы
+        function loadLessonsForGroup(group) {
                 const token = localStorage.getItem('authToken');
 
-                fetch(`/api/teacher/lessons?groupName=${group}`, {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${token}` }
+        fetch(`/api/teacher/lessons?groupName=${group}`, {
+            method: 'GET',
+        headers: {Authorization: `Bearer ${token}` }
                 })
                     .then(response => response.json())
                     .then(data => {
                         const lessonPicker = document.getElementById('lessonPicker');
-                        lessonPicker.innerHTML = ''; // Очищаем список перед добавлением новых уроков
+        lessonPicker.innerHTML = ''; // Очищаем список перед добавлением новых уроков
 
                         if (data.lessons && data.lessons.length > 0) {
-                            data.lessons.forEach(lesson => {
-                                const option = document.createElement('option');
-                                option.value = lesson.lesson_id;
-                                option.textContent = `${lesson.day_name}: ${lesson.lesson_start} - ${lesson.lesson_end}`;
-                                lessonPicker.appendChild(option);
-                            });
+            data.lessons.forEach(lesson => {
+                const option = document.createElement('option');
+                option.value = lesson.lesson_id;
+                option.textContent = `${lesson.day_name}: ${lesson.lesson_start} - ${lesson.lesson_end}`;
+                lessonPicker.appendChild(option);
+            });
                         } else {
-                            alert('Нет уроков для выбранной группы');
+            alert('Нет уроков для выбранной группы');
                         }
                     })
                     .catch(err => {
-                        console.error('Ошибка при загрузке уроков:', err);
-                        alert('Ошибка при загрузке уроков');
+            console.error('Ошибка при загрузке уроков:', err);
+        alert('Ошибка при загрузке уроков');
                     });
             }
 
-            // Загружаем уроки при выборе группы
-            document.getElementById('groupPicker').addEventListener('change', function () {
+        // Загружаем уроки при выборе группы
+        document.getElementById('groupPicker').addEventListener('change', function () {
                 const group = this.value;
 
-                if (!group) {
-                    alert('Пожалуйста, выберите группу');
-                    return;
+        if (!group) {
+            alert('Пожалуйста, выберите группу');
+        return;
                 }
 
-                loadLessonsForGroup(group);
+        loadLessonsForGroup(group);
             });
 
 
-            // Загружаем группы преподавателя
-            function loadTeacherGroups() {
-                fetch('/api/teacher/groups', {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`
+        // Загружаем группы преподавателя
+        function loadTeacherGroups() {
+            fetch('/api/teacher/groups', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.groups) {
+                        const groupPicker = document.getElementById('groupPicker');
+                        groupPicker.innerHTML = ''; // Очистить предыдущие группы
+                        data.groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group;
+                            option.textContent = group;
+                            groupPicker.appendChild(option);
+                        });
+                    } else {
+                        alert('Ошибка при загрузке групп');
                     }
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.groups) {
-                            const groupPicker = document.getElementById('groupPicker');
-                            groupPicker.innerHTML = ''; // Очистить предыдущие группы
-                            data.groups.forEach(group => {
-                                const option = document.createElement('option');
-                                option.value = group;
-                                option.textContent = group;
-                                groupPicker.appendChild(option);
-                            });
-                        } else {
-                            alert('Ошибка при загрузке групп');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Ошибка:', err);
-                        alert('Ошибка при загрузке данных групп');
-                    });
+                .catch(err => {
+                    console.error('Ошибка:', err);
+                    alert('Ошибка при загрузке данных групп');
+                });
             }
 
-            // Загружаем группы преподавателей
-            loadTeacherGroups();
+        // Загружаем группы преподавателей
+        loadTeacherGroups();
         });
 
         document.getElementById('addLessonForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken');
 
-            if (!token) {
-                alert('Вы не авторизованы, пожалуйста, войдите в систему.');
-                return;
+        if (!token) {
+            alert('Вы не авторизованы, пожалуйста, войдите в систему.');
+        return;
             }
 
-            const lessonDate = document.getElementById('lessonDate').value;
-            const lessonId = document.getElementById('lessonPicker').value; // Получаем ID урока
+        const lessonDate = document.getElementById('lessonDate').value;
+        const lessonId = document.getElementById('lessonPicker').value; // Получаем ID урока
 
-            if (!lessonDate || !lessonId) {
-                alert('Пожалуйста, выберите дату и урок');
-                return;
+        if (!lessonDate || !lessonId) {
+            alert('Пожалуйста, выберите дату и урок');
+        return;
             }
 
-            fetch('/api/teacher/addLessonDate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
+        fetch('/api/teacher/addLessonDate', {
+            method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    lessonDate,
-                    lessonId // Отправляем lessonId вместо groupName
-                })
+        body: JSON.stringify({
+            lessonDate,
+            lessonId // Отправляем lessonId вместо groupName
+        })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Дата урока успешно добавлена');
+            alert('Дата урока успешно добавлена');
                     } else {
-                        alert('Ошибка при добавлении даты урока');
+            alert('Ошибка при добавлении даты урока');
                     }
                 })
                 .catch(err => {
-                    console.error('Ошибка:', err);
-                    alert('Ошибка при добавлении даты урока');
+            console.error('Ошибка:', err);
+        alert('Ошибка при добавлении даты урока');
                 });
         });
 
@@ -457,46 +626,46 @@
         document.getElementById('deleteLessonForm').addEventListener('submit', function (event) {
             event.preventDefault();
 
-            const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('authToken');
 
-            if (!token) {
-                alert('Вы не авторизованы, пожалуйста, войдите в систему.');
-                return;
+        if (!token) {
+            alert('Вы не авторизованы, пожалуйста, войдите в систему.');
+        return;
             }
 
-            const lessonDate = document.getElementById('deleteLessonSelect').value;
+        const lessonDate = document.getElementById('deleteLessonSelect').value;
 
-            if (!lessonDate) {
-                alert('Пожалуйста, выберите урок для удаления');
-                return;
+        if (!lessonDate) {
+            alert('Пожалуйста, выберите урок для удаления');
+        return;
             }
 
-            const group = document.getElementById('groupPicker').value;
+        const group = document.getElementById('groupPicker').value;
 
-            fetch('/api/teacher/deleteLessonDate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
+        fetch('/api/teacher/deleteLessonDate', {
+            method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({
-                    lessonDate,
-                    group
-                })
+        body: JSON.stringify({
+            lessonDate,
+            group
+        })
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Урок успешно удален');
+            alert('Урок успешно удален');
                         // После удаления обновим список уроков
                         //loadStudentsAndLessons(group);
                     } else {
-                        alert('Ошибка при удалении урока');
+            alert('Ошибка при удалении урока');
                     }
                 })
                 .catch(err => {
-                    console.error('Ошибка:', err);
-                    alert('Ошибка при удалении урока');
+            console.error('Ошибка:', err);
+        alert('Ошибка при удалении урока');
                 });
         });
 

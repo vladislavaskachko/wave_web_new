@@ -22,7 +22,7 @@
         }
 
         .answer {
-            background-color: #0c447f;
+            background-color: #002F6C;
             color: white;
             padding: 10px;
             margin: 5px 20px;
@@ -34,6 +34,31 @@
             text-align: center;
             color: #555;
         }
+        #questionsContainer {
+            margin-right: 75px; /* или другой нужный отступ */
+        }
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
     </style>
 </head>
 <body>
@@ -50,7 +75,55 @@
         <p>eamelnik_1@edu.hse.ru</p>
         <p>Vdskachko@edu.hse.ru</p>
     </div>
+    <!-- Контейнер для меню -->
+    <div class="top-right-menu"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Читаем роль пользователя, сохранённую при авторизации
+            var userRole = localStorage.getItem('userRole');
+            var menuContainer = document.querySelector('.top-right-menu');
+            let menuHtml = '';
 
+            if (userRole === '3') {
+                // Меню для ученика
+                menuHtml = `
+                    <button onclick="location.href='/notifications.html'">🔔</button>
+                    <button onclick="location.href='/attendance.html'">✍️</button>
+                    <button onclick="location.href='/gradeStudent.html'">💯</button>
+                    <button onclick="location.href='/scheduleStudent.html'">📅</button>
+                    <button style="background-color: lightgrey; color: white;" onclick="location.href='/support.html'">🆘</button>
+                `;
+            } else if (userRole === '2') {
+                // Меню для учителя
+                menuHtml = `
+                    <button onclick="location.href='/notifications.html'">🔔</button>
+                    <button onclick="location.href='/attTeacher.html'">✍️</button>
+                    <button onclick="location.href='/gradeTeacher.html'">💯</button>
+                    <button onclick="location.href='/scheduleTeacher.html'">📅</button>
+                    <button style="background-color: lightgrey; color: white;" onclick="location.href='/support.html'">🆘</button>
+                `;
+            } else if (userRole === '4') {
+                // Меню для родителя
+                menuHtml = `   
+                    <button onclick="location.href='/notifications.html'">🔔</button>
+                    <button onclick="location.href='/attParent.html'">✍</button>
+                    <button onclick="location.href='/gradeParent.html'">💯</button>
+                    <button onclick="location.href='/scheduleParent.html'">📅</button>
+                    <button onclick="location.href='/parentPayments.html'">💰</button>
+                    <button style="background-color: lightgrey; color: white;" onclick="location.href='/support.html'">🆘</button>
+                `;
+            }
+            // Если роль не определена, можно задать меню по умолчанию или показать сообщение
+            else {
+                menuHtml = `
+                    <button onclick="location.href='/notifications.html'">🔔</button>
+                    <button onclick="location.href='/support.html'">🆘</button>
+                `;
+            }
+
+            menuContainer.innerHTML = menuHtml;
+        });
+    </script>
     <script>
         // Загружаем данные с сервера
         fetch('/api/support')

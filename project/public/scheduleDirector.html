@@ -175,10 +175,40 @@
                 width: 100%;
                 text-align: center;
             }
+        /* Блок с кнопками в правом верхнем углу */
+        .top-right-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+            .top-right-menu button {
+                width: 50px;
+                height: 50px;
+                border: none;
+                border-radius: 50%;
+                background-color: #002F6C;
+                color: white;
+                cursor: pointer;
+                font-size: 24px;
+                text-align: center;
+            }
     </style>
 </head>
 <body>
-
+    <!-- Фиксированный блок кнопок в правом верхнем углу -->
+    <div class="top-right-menu">
+        <button onclick="location.href='/adminNotifications.html'">🔔</button>
+        <button onclick="location.href='/adminPayment.html'">💰</button>
+        <button style="background-color: lightgrey; color: white;" onclick="location.href='/scheduleDirector.html'">📅</button>
+        <button onclick="location.href='/adminUser.html'">🧑‍🤝‍🧑</button>
+        <button onclick="location.href='/coursesGroupsAdmin.html'">📚</button>
+        <button onclick="location.href='/settings.html'">⚙️</button>
+    </div>
     <div class="container">
         <!-- Compact form for adding lessons -->
         <div class="add-lesson-form">
@@ -220,7 +250,7 @@
             fetch('/api/director/groups')
                 .then(response => response.json())
                 .then(responseData => {
-                    console.log(responseData); 
+                    //console.log(responseData);
                     if (responseData && Array.isArray(responseData.groups)) {
                         const groupPicker = document.getElementById("groupPicker");
                         responseData.groups.forEach(group => {
@@ -239,7 +269,7 @@
             fetch('/api/director/days')
                 .then(response => response.json())
                 .then(responseData => {  // Используем responseData вместо data
-                    console.log(responseData);  // Выводим весь ответ в консоль
+                    //console.log(responseData);  // Выводим весь ответ в консоль
 
                     if (responseData && Array.isArray(responseData.days)) {
                         const dayPicker = document.getElementById("dayPicker");
@@ -259,7 +289,7 @@
             fetch('/api/director/rooms')
                 .then(response => response.json())
                 .then(responseData => {
-                    console.log(responseData);
+                    //console.log(responseData);
                     if (responseData && Array.isArray(responseData.rooms)) {
                         const roomPicker = document.getElementById("roomPicker");
                         responseData.rooms.forEach(room => {
@@ -376,7 +406,7 @@
                 fetch('/api/lessons')
                     .then(response => response.json())
                     .then(data => {
-                        console.log("Полученные данные уроков:", data);
+                        //console.log("Полученные данные уроков:", data);
                         if (data.lessons) {
                             insertLessonsIntoTable(data.lessons);
                         }
@@ -385,10 +415,10 @@
             }
 
             function insertLessonsIntoTable(lessons) {
-                console.log("Данные уроков для вставки в таблицу:", lessons); // Отладка
+                //console.log("Данные уроков для вставки в таблицу:", lessons); // Отладка
 
                 lessons.forEach(lesson => {
-                    console.log("Текущий урок:", lesson); // Проверяем структуру каждого урока
+                    //console.log("Текущий урок:", lesson); // Проверяем структуру каждого урока
 
                     const dayCell = document.querySelector(`td[data-day="${lesson.lesson_day_id}"][data-room="${lesson.lesson_room_id}"]`);
                     if (dayCell) {
@@ -396,13 +426,13 @@
                         lessonDiv.classList.add("lesson");
 
                         lessonDiv.dataset.lessonId = lesson.id || lesson.lesson_id || lesson._id;
-                        console.log("lessonId, который сохранился:", lessonDiv.dataset.lessonId); // Проверка ID
+                        //console.log("lessonId, который сохранился:", lessonDiv.dataset.lessonId); // Проверка ID
 
                         lessonDiv.innerHTML = `
-                <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
-                <span class="group">${lesson.group_name}</span>
-                <button class="delete-btn" style="display: none;">Удалить 🗑️</button>
-            `;
+                    <span class="time">${lesson.lesson_start} - ${lesson.lesson_end}</span>
+                    <span class="group">${lesson.group_name}</span>
+                    <button class="delete-btn" style="display: none;">Удалить 🗑️</button>
+                `;
 
                         // Показываем кнопку удаления при клике на урок
                         lessonDiv.addEventListener("click", function (event) {
@@ -415,7 +445,7 @@
                         lessonDiv.querySelector(".delete-btn").addEventListener("click", function (event) {
                             event.stopPropagation();
                             const lessonId = lessonDiv.dataset.lessonId;
-                            console.log("Удаление урока с ID:", lessonId); // Проверяем, передается ли ID
+                            //console.log("Удаление урока с ID:", lessonId); // Проверяем, передается ли ID
                             if (!lessonId) {
                                 console.error("Ошибка: отсутствует ID урока");
                                 alert("Ошибка: ID урока не найден.");
@@ -437,7 +467,7 @@
 
             // Функция удаления урока
             function deleteLesson(lessonId, lessonElement) {
-                console.log("Отправка DELETE запроса на ID:", lessonId); // Проверка перед запросом
+                //console.log("Отправка DELETE запроса на ID:", lessonId); // Проверка перед запросом
 
                 fetch(`/api/lessons/${lessonId}`, {
                     method: 'DELETE',
@@ -449,7 +479,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        console.log("Ответ сервера:", data);
+                        //console.log("Ответ сервера:", data);
                         if (data.message === "Урок успешно удалён") {
                             lessonElement.remove(); // Удаляем урок из интерфейса
                             alert(data.message); // Показываем сообщение об успехе

@@ -9,6 +9,25 @@
             font-family: Arial, sans-serif;
         }
 
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
         .error {
             color: red;
         }
@@ -17,62 +36,144 @@
 <body>
 
     <h1>Авторизация</h1>
-
     <form id="loginForm">
         <label for="login">Логин:</label>
         <input type="text" id="login" name="login" required><br><br>
 
         <label for="password">Пароль:</label>
         <input type="password" id="password" name="password" required><br><br>
-
-        <button type="submit">Войти</button>
     </form>
+
+    <button onclick="openModal()">Войти</button>
+
+    <div id="loginModalOverlay" class="modal-overlay" onclick="closeModal(event)">
+        <div id="loginModal" class="modal">
+            <label for="userRole">Выберите роль:</label>
+            <select id="userRole" name="role" required></select><br><br>
+            <button type="button" onclick="handleLogin()">Подтвердить</button>
+        </div>
+    </div>
 
     <div id="errorMessage" class="error"></div>
 
     <script>
-        // Обработчик формы авторизации
-        function handleLogin(event) {
-            event.preventDefault(); // Предотвращаем отправку формы по умолчанию
+        function openModal() {
+            let login = document.getElementById('login').value;
+            let password = document.getElementById('password').value;
 
-            var login = document.getElementById('login').value;
-            var password = document.getElementById('password').value;
+            if (!login || !password) {
+                document.getElementById('errorMessage').textContent = "Введите логин и пароль";
+                return;
+            }
 
-            // Создаем запрос для отправки данных на сервер
-            var request = new XMLHttpRequest();
-            request.open('POST', 'http://localhost:1337/auth/login', true);
-            request.setRequestHeader('Content-Type', 'application/json');
-
-            // Создаем данные для отправки
-            var data = JSON.stringify({
-                login: login,
-                password: password
-            });
-
-            // Обрабатываем ответ от сервера
-            request.onload = function () {
-                var response = JSON.parse(request.responseText);
-                if (request.status === 200) {
-                    localStorage.setItem('authToken', response.token); // Сохраняем токен
-                    // Если авторизация успешна, перенаправляем на страницу уведомлений
-                    window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
-                    window.location.href = '/coursesGroupsAdmin.html';  // Путь к странице уведомлений
-                    //window.location.href = '/adminUser.html';  // Путь к странице уведомлений
-                } else {
-                    document.getElementById('errorMessage').textContent = response.message;
-                }
-            };
-
-            request.onerror = function () {
-                document.getElementById('errorMessage').textContent = 'Ошибка при отправке запроса!';
-            };
-
-            // Отправляем данные на сервер
-            request.send(data);
+            loadRoles(login);
         }
 
-        // Привязываем обработчик к форме
-        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        function closeModal(event) {
+            if (event.target === document.getElementById('loginModalOverlay')) {
+                document.getElementById('loginModalOverlay').style.display = 'none';
+            }
+        }
+
+        function loadRoles(login) {
+            fetch('http://localhost:1337/auth/getRoles', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login: login })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        document.getElementById('errorMessage').textContent = data.message;
+                        return;
+                    }
+
+                    let roleSelect = document.getElementById('userRole');
+                    roleSelect.innerHTML = ''; // Очищаем старые опции
+
+                    data.forEach(role => {
+                        let option = document.createElement('option');
+                        option.value = role.usertype_id;
+                        option.textContent = role.usertype_name;
+                        roleSelect.appendChild(option);
+                    });
+
+                    document.getElementById('loginModalOverlay').style.display = 'flex';
+                })
+                .catch(error => {
+                    document.getElementById('errorMessage').textContent = 'Ошибка загрузки ролей';
+                    console.error('Ошибка:', error);
+                });
+        }
+
+            // Обрабатываем ответ от сервера
+            //request.onload = function () {
+            //    var response = JSON.parse(request.responseText);
+            //    if (request.status === 200) {
+            //        localStorage.setItem('authToken', response.token); // Сохраняем токен
+            //        // Если авторизация успешна, перенаправляем на страницу уведомлений
+            //        window.location.href = '/adminNotifications.html';  // Путь к странице уведомлений
+            //        window.location.href = '/coursesGroupsAdmin.html';  // Путь к странице уведомлений
+            //        //window.location.href = '/adminUser.html';  // Путь к странице уведомлений
+            //    } else {
+            //        document.getElementById('errorMessage').textContent = response.message;
+            //    }
+            //};
+
+            //fetch('http://localhost:1337/auth/login', {
+            //    method: 'POST',
+            //    headers: { 'Content-Type': 'application/json' },
+            //    body: JSON.stringify({ login, password, role })
+            //})
+            //    .then(response => response.json())
+            //    .then(data => {
+            //        if (data.token) {
+            //            localStorage.setItem('authToken', data.token);
+            //            let redirectMap = {
+            //                '2': '/scheduleTeacher.html',
+            //                '3': '/scheduleStudent.html',
+            //                '4': '/gradeParent.html',
+            //                '1': '/scheduleDirector.html'
+            //            };
+            //            window.location.href = redirectMap[role] || '/';
+            //        } else {
+            //            document.getElementById('errorMessage').textContent = data.message;
+            //        }
+            //    })
+            //    .catch(() => {
+            //        document.getElementById('errorMessage').textContent = 'Ошибка авторизации';
+            //    });
+        function handleLogin() {
+            let login = document.getElementById('login').value;
+            let password = document.getElementById('password').value;
+            let role = document.getElementById('userRole').value;
+
+            fetch('http://localhost:1337/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login, password, role })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        localStorage.setItem('authToken', data.token);
+                        localStorage.setItem('userRole', role);
+                        if (role === '1') {
+                            window.location.href = '/adminNotifications.html';
+                        } else {
+                            // Для всех остальных пользователей перенаправляем на страницу notifications
+                            window.location.href = '/notifications.html';
+                        }
+                        window.location.href = redirectMap[role] || '/';
+                    } else {
+                        document.getElementById('errorMessage').textContent = data.message;
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('errorMessage').textContent = 'Ошибка авторизации';
+                });
+        }
+
     </script>
 
 </body>

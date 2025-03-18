@@ -1,20 +1,20 @@
-const jwt = require('jsonwebtoken');
+ï»¿const jwt = require('jsonwebtoken');
 const db = require('../config/dbConfig');
 
 exports.getAttendance = (req, res) => {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
-        return res.status(401).json({ message: 'Âû íå àâòîðèçîâàíû' });
+        return res.status(401).json({ message: 'Ð’Ñ‹ Ð½Ðµ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð¾Ð²Ð°Ð½Ñ‹' });
     }
 
-    const token = authHeader.split(' ')[1]; // Áåð¸ì òîêåí èç çàãîëîâêà
+    const token = authHeader.split(' ')[1]; // Ð‘ÐµÑ€Ñ‘Ð¼ Ñ‚Ð¾ÐºÐµÐ½ Ð¸Ð· Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ°
     let userId;
 
     try {
-        const decoded = jwt.verify(token, 'secret_key'); // !! Òîò æå êëþ÷, ÷òî â `authController.js` !!
+        const decoded = jwt.verify(token, 'secret_key'); // !! Ð¢Ð¾Ñ‚ Ð¶Ðµ ÐºÐ»ÑŽÑ‡, Ñ‡Ñ‚Ð¾ Ð² `authController.js` !!
         userId = decoded.userId;
     } catch (error) {
-        return res.status(403).json({ message: 'Íåâåðíûé òîêåí' });
+        return res.status(403).json({ message: 'ÐÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ñ‚Ð¾ÐºÐµÐ½' });
     }
 
     const attendanceQuery = `
@@ -32,12 +32,12 @@ exports.getAttendance = (req, res) => {
 
     db.query(attendanceQuery, [userId], (err, attendanceResults) => {
         if (err) {
-            console.error('Îøèáêà çàïðîñà ê áàçå äàííûõ:', err);
-            return res.status(500).json({ message: 'Îøèáêà íà ñåðâåðå' });
+            console.error('ÐžÑˆÐ¸Ð±ÐºÐ° Ð·Ð°Ð¿Ñ€Ð¾ÑÐ° Ðº Ð±Ð°Ð·Ðµ Ð´Ð°Ð½Ð½Ñ‹Ñ…:', err);
+            return res.status(500).json({ message: 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð½Ð° ÑÐµÑ€Ð²ÐµÑ€Ðµ' });
         }
 
         if (attendanceResults.length === 0) {
-            return res.status(200).json({ attendance: [{ date: "Çàïèñåé ïîêà íåò", group: '', visit: '' }] });
+            return res.status(200).json({ attendance: [{ date: "Ð—Ð°Ð¿Ð¸ÑÐµÐ¹ Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚", group: '', visit: '' }] });
         }
 
         const attendance = attendanceResults.map(row => ({

@@ -6,6 +6,7 @@ var notificationController = require('../controllers/notificationController');
 var supportController = require('../controllers/supportController');
 var attendanceController = require('../controllers/attendanceController');
 var attTeacherController = require('../controllers/attTeacherController');
+var attParentController = require('../controllers/attParentController');
 var scheduleDirectorController = require('../controllers/scheduleDirectorController');
 var scheduleStudentController = require('../controllers/scheduleStudentController');
 var scheduleParentController = require('../controllers/scheduleParentController');
@@ -24,6 +25,7 @@ const paymentController = require('../controllers/paymentController');
 const { group } = require('console');
 
 router.post('/auth/login', authController.login);
+router.post('/auth/getRoles', authController.getRoles);
 
 router.get('/api/notifications', notificationController.getNotifications);
 
@@ -31,6 +33,8 @@ router.post('/api/notifications', notificationController.addNotification);
 
 router.get('/api/support', supportController.getSupport);
 
+router.get('/api/attendance', attendanceController.getAttendance);
+router.get('/api/parent/attendance', attParentController.getChildAttendance);
 
 router.get('/api/teacher/groups', attTeacherController.getTeacherGroups);
 router.get('/api/teacher/attendance', attTeacherController.getAttendance);
@@ -112,7 +116,7 @@ router.get('/api/group-name-by-id', groupsController.getGroupNameById);
 
 
 router.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'mainPage.html'));
 });
 
 router.use(express.static(path.join(__dirname, '..', 'public')));
