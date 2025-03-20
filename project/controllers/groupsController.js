@@ -72,20 +72,49 @@ exports.deleteGroup = (req, res) => {
 };
 
 exports.addChildToGroup = (req, res) => {
-    const { child_id, group_id } = req.body;
+    const { child_id, group_id, course_id, sale } = req.body;
 
-    // Проверяем, что child_id и group_id переданы
-    if (!child_id || !group_id) {
-        return res.status(400).json({ error: "Не указаны child_id или group_id" });
+    if (!child_id || !group_id || !course_id || sale === undefined) {
+        return res.status(400).json({ error: "Не переданы необходимые параметры" });
     }
 
-    // Добавляем ребенка в группу
-    db.query('INSERT INTO students_groups (student_id, group_id) VALUES (?, ?)', [child_id, group_id], (err, results) => {
+    // Начинаем транзакцию, чтобы оба запроса выполнялись вместе
+    db.beginTransaction(err => {
         if (err) {
-            console.error("Ошибка добавления ребенка в группу:", err);  // Выводим подробную ошибку на сервер
-            return res.status(500).json({ error: "Ошибка добавления ребенка в группу" });
+            console.error("Ошибка при начале транзакции:", err);
+            return res.status(500).json({ error: "Ошибка сервера" });
         }
-        res.json({ message: 'Ребенок добавлен в группу успешно' });
+
+        // Добавляем запись в students_groups
+        db.query('INSERT INTO students_groups (student_id, group_id) VALUES (?, ?)', [child_id, group_id], (err, results) => {
+            if (err) {
+                return db.rollback(() => {
+                    console.error("Ошибка при добавлении ребенка в группу:", err);
+                    res.status(500).json({ error: "Ошибка при добавлении ребенка в группу" });
+                });
+            }
+
+            // Добавляем запись в contract
+            db.query('INSERT INTO contract (contract_student_id, contract_course_id, contract_sale) VALUES (?, ?, ?)', [child_id, course_id, sale], (err, results) => {
+                if (err) {
+                    return db.rollback(() => {
+                        console.error("Ошибка при добавлении контракта:", err);
+                        res.status(500).json({ error: "Ошибка при добавлении контракта" });
+                    });
+                }
+
+                // Фиксируем транзакцию
+                db.commit(err => {
+                    if (err) {
+                        return db.rollback(() => {
+                            console.error("Ошибка при фиксации транзакции:", err);
+                            res.status(500).json({ error: "Ошибка сервера" });
+                        });
+                    }
+                    res.json({ message: 'Ребенок добавлен в группу и контракт создан' });
+                });
+            });
+        });
     });
 };
 exports.getGroupNameById = (req, res) => {

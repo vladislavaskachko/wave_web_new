@@ -152,252 +152,315 @@
     </div>
 
     <script type="text/babel">
-        function App() {
-            const [courses, setCourses] = React.useState([]);
-            const [expanded, setExpanded] = React.useState({});
-            const [teachers, setTeachers] = React.useState([]);
-            const [students, setStudents] = React.useState([]);
-            const [sizes, setSizes] = React.useState([]);
-            const [schemes, setSchemes] = React.useState([]);
-            const [newCourse, setNewCourse] = React.useState({
-                name: '',
-                time: '',
-                price: '',
-                sizeId: '',
-                schemeId: '',
-            });
-            const [showPopup, setShowPopup] = React.useState(null);
-            const [searchTerm, setSearchTerm] = React.useState("");
-            const [selectedStudents, setSelectedStudents] = React.useState(new Set());
-            const [groupStudents, setGroupStudents] = React.useState({});
+                                    function App() {
+                            const [courses, setCourses] = React.useState([]);
+                            const [expanded, setExpanded] = React.useState({});
+                            const [expandedChildren, setExpandedChildren] = React.useState({});
+                            const [teachers, setTeachers] = React.useState([]);
+                            const [sizes, setSizes] = React.useState([]);
+                            const [schemes, setSchemes] = React.useState([]);
+                            // Используем getStudents для заполнения списка детей в popup
+                            const [availableChildren, setAvailableChildren] = React.useState([]);
+                            // Для хранения детей по группам (ключ – group_id)
+                            const [childrenByGroup, setChildrenByGroup] = React.useState({});
+                            const [newCourse, setNewCourse] = React.useState({
+                                name: '', time: '', price: '', sizeId: '', schemeId: ''
+                            });
+                            const [newGroup, setNewGroup] = React.useState({ name: '', teacherId: '' });
+                            // Состояние для popup добавления ребенка
+                            const [childPopup, setChildPopup] = React.useState({
+                                visible: false,
+                                groupId: null,
+                                selectedChild: "",
+                                discount: ""
+                            });
 
-            React.useEffect(() => {
-                fetch('/api/courses-with-groups')
-                    .then(response => response.json())
-                    .then(data => setCourses(data));
+                            React.useEffect(() => {
+                                fetchCourses();
+                                fetchTeachers();
+                                fetchSizes();
+                                fetchSchemes();
+                                fetchAvailableChildren();
+                            }, []);
 
-                fetch('/api/teachers')
-                    .then(response => response.json())
-                    .then(data => setTeachers(data));
+                            const fetchCourses = () => {
+                                fetch('/api/courses-with-groups')
+                                    .then(response => response.json())
+                                    .then(data => setCourses(data))
+                                    .catch(error => console.error('Ошибка при загрузке курсов:', error));
+                            };
 
-                fetch('/api/students')
-                    .then(response => response.json())
-                    .then(data => setStudents(data));
+                            const fetchTeachers = () => {
+                                fetch('/api/teachers')
+                                    .then(response => response.json())
+                                    .then(data => setTeachers(data));
+                            };
 
-                fetch('/api/settings/sizes')
-                    .then(response => response.json())
-                    .then(data => setSizes(data))
-                    .catch(error => console.error('Ошибка при загрузке размеров:', error));
+                            const fetchSizes = () => {
+                                fetch('/api/settings/sizes')
+                                    .then(response => response.json())
+                                    .then(data => setSizes(data));
+                            };
 
-                fetch('/api/settings/schemes')
-                    .then(response => response.json())
-                    .then(data => setSchemes(data))
-                    .catch(error => console.error('Ошибка при загрузке схем:', error));
-            }, []);
+                            const fetchSchemes = () => {
+                                fetch('/api/settings/schemes')
+                                    .then(response => response.json())
+                                    .then(data => setSchemes(data));
+                            };
 
-            const toggleExpand = (courseId) => {
-                setExpanded(prev => ({ ...prev, [courseId]: !prev[courseId] }));
-            };
+                            // Получаем всех детей для popup (используем API getStudents)
+                            const fetchAvailableChildren = () => {
+                                fetch('/api/students')
+                                    .then(response => response.json())
+                                    .then(data => setAvailableChildren(data))
+                                    .catch(error => console.error('Ошибка при загрузке детей:', error));
+                            };
 
-            const handleAddCourse = () => {
-                const { name, time, price, sizeId, schemeId } = newCourse;
-                if (!name || !time || !price || !sizeId || !schemeId) {
-                    alert('Пожалуйста, заполните все поля.');
-                    return;
-                }
+                            // При нажатии на кнопку "Показать детей" для группы делаем запрос к API getStudentsByGroup
+                            const loadGroupChildren = (group) => {
+                                fetch(`/api/students/by-group?groupName=${encodeURIComponent(group.group_name)}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        setChildrenByGroup(prev => ({ ...prev, [group.group_id]: data }));
+                                    })
+                                    .catch(error => console.error('Ошибка при загрузке детей группы:', error));
+                            };
 
-                fetch('/api/courses', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name,
-                        time,
-                        price,
-                        size_id: sizeId,
-                        scheme_id: schemeId
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                        alert('Курс добавлен успешно');
-                        setNewCourse({
-                            name: '',
-                            time: '',
-                            price: '',
-                            sizeId: '',
-                            schemeId: ''
-                        });
-                        fetchCourses();
-                })
-                .catch(error => {
-                    console.error('Ошибка при добавлении курса:', error);
-                    alert('Произошла ошибка');
-                });
-            };
+                            const toggleExpand = (courseId) => {
+                                setExpanded(prev => ({ ...prev, [courseId]: !prev[courseId] }));
+                            };
 
-            const fetchCourses = () => {
-                fetch('/api/courses-with-groups')
-                    .then(response => response.json())
-                    .then(data => setCourses(data))
-                    .catch(error => console.error('Ошибка при загрузке курсов:', error));
-            };
+                            const toggleChildrenExpand = (group) => {
+                                const groupId = group.group_id;
+                                if (!expandedChildren[groupId]) {
+                                    loadGroupChildren(group);
+                                }
+                                setExpandedChildren(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+                            };
 
-            const handleSearchChange = (e) => {
-                setSearchTerm(e.target.value);
-            };
+                            // Добавление курса
+                            const handleAddCourse = () => {
+                                const { name, time, price, sizeId, schemeId } = newCourse;
+                                if (!name || !time || !price || !sizeId || !schemeId) {
+                                    alert('Заполните все поля!');
+                                    return;
+                                }
 
-            const toggleStudentSelection = (studentId) => {
-                setSelectedStudents(prev => {
-                    const updated = new Set(prev);
-                    if (updated.has(studentId)) {
-                        updated.delete(studentId);
-                    } else {
-                        updated.add(studentId);
-                    }
-                    return updated;
-                });
-            };
+                                fetch('/api/courses', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ name, time, price, size_id: sizeId, scheme_id: schemeId })
+                                })
+                                .then(response => response.json())
+                                .then(() => {
+                                    alert('Курс добавлен!');
+                                    setNewCourse({ name: '', time: '', price: '', sizeId: '', schemeId: '' });
+                                    fetchCourses();
+                                })
+                                .catch(error => console.error('Ошибка при добавлении курса:', error));
+                            };
 
-            const filteredStudents = students.filter(student =>
-                `${student.user_surname} ${student.user_name} ${student.user_patronymic}`
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())
+                            // Добавление группы
+                            const handleAddGroup = (courseId) => {
+                                if (!newGroup.name || !newGroup.teacherId) {
+                                    alert('Заполните все поля!');
+                                    return;
+                                }
+
+                                fetch('/api/groups', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        name: newGroup.name,
+                                        course_id: courseId,
+                                        teacher_id: newGroup.teacherId
+                                    })
+                                })
+                                .then(response => response.json())
+                                .then(() => {
+                                    alert('Группа добавлена!');
+                                    setNewGroup({ name: '', teacherId: '' });
+                                    fetchCourses();
+                                })
+                                .catch(error => console.error('Ошибка при добавлении группы:', error));
+                            };
+
+                            // Открытие popup для добавления ребенка в группу
+                            const openChildPopup = (groupId) => {
+                                setChildPopup({
+                                    visible: true,
+                                    groupId: groupId,
+                                    selectedChild: "",
+                                    discount: ""
+                                });
+                            };
+
+                            const closeChildPopup = () => {
+                                setChildPopup({
+                                    visible: false,
+                                    groupId: null,
+                                    selectedChild: "",
+                                    discount: ""
+                                });
+                            };
+
+                            // Добавление ребенка в группу через popup
+                           const handleAddChild = () => {
+            const { groupId, selectedChild, discount } = childPopup;
+            if (!selectedChild || discount === "") {
+                alert("Выберите ребенка и укажите скидку!");
+                return;
+            }
+
+            // Найти курс, к которому принадлежит группа
+            const foundCourse = courses.find(course =>
+                course.groups.some(group => group.group_id === groupId)
             );
 
-            const loadStudentsByGroup = (groupId) => {
-                fetch(`/api/students/by-group?groupName=${groupId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        setGroupStudents(prev => ({ ...prev, [groupId]: data }));
-                    });
-            };
+            if (!foundCourse) {
+                console.error("Ошибка: курс для группы не найден!");
+                return;
+            }
 
-            return (
-                <div>
-                    <h1>Добавить новый курс</h1>
-                    <div className="form">
-                        <input
-                            id="name"
-                            type="text"
-                            placeholder="Название курса"
-                            value={newCourse.name}
-                            onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
-                        />
-                        <input
-                            id="time"
-                            type="text"
-                            placeholder="Время курса"
-                            value={newCourse.time}
-                            onChange={(e) => setNewCourse({ ...newCourse, time: e.target.value })}
-                        />
-                        <input
-                            id="price"
-                            type="number"
-                            placeholder="Цена курса"
-                            value={newCourse.price}
-                            onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
-                        />
+            fetch("/api/groups/add-child", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    group_id: groupId,
+                    child_id: selectedChild,
+                    course_id: foundCourse.course_id, // Теперь передается корректно
+                    sale: discount
+                })
+            })
+            .then(response => response.json())
+            .then(() => {
+                alert("Ребенок добавлен!");
+                closeChildPopup();
+                fetchCourses();
+            })
+            .catch(error => console.error("Ошибка при добавлении ребенка:", error));
+        };
 
-                        {/* Выпадающий список для размера */}
-                        <select
-                            value={newCourse.sizeId}
-                            onChange={(e) => setNewCourse({ ...newCourse, sizeId: e.target.value })}
-                        >
-                            <option value="">Выберите размер</option>
-                            {sizes.map(size => (
-                                <option key={size.size_id} value={size.size_id}>
-                                    {size.size_value}
-                                </option>
-                            ))}
-                        </select>
+                            return (
+                                <div>
+                                    <h1>Курсы и группы</h1>
 
-                        {/* Выпадающий список для схемы */}
-                        <select
-                            value={newCourse.schemeId}
-                            onChange={(e) => setNewCourse({ ...newCourse, schemeId: e.target.value })}
-                        >
-                            <option value="">Выберите схему</option>
-                            {schemes.map(scheme => (
-                                <option key={scheme.scheme_id} value={scheme.scheme_id}>
-                                    {scheme.scheme_value}
-                                </option>
-                            ))}
-                        </select>
+                                    {/* Добавление курса */}
+                                    <div className="form">
+                                        <input
+                                            type="text" placeholder="Название курса"
+                                            value={newCourse.name} onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
+                                        />
+                                        <input
+                                            type="text" placeholder="Время курса"
+                                            value={newCourse.time} onChange={(e) => setNewCourse({ ...newCourse, time: e.target.value })}
+                                        />
+                                        <input
+                                            type="number" placeholder="Цена курса"
+                                            value={newCourse.price} onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
+                                        />
 
-                        <button onClick={handleAddCourse}>Добавить курс</button>
-                    </div>
+                                        <select value={newCourse.sizeId} onChange={(e) => setNewCourse({ ...newCourse, sizeId: e.target.value })}>
+                                            <option value="">Выберите размер</option>
+                                            {sizes.map(size => (
+                                                <option key={size.size_id} value={size.size_id}>{size.size_value}</option>
+                                            ))}
+                                        </select>
 
-                    <ul className="tree">
-                        {courses.map(course => (
-                            <li key={course.course_id}>
-                                <div className="course" onClick={() => toggleExpand(course.course_id)}>
-                                    {expanded[course.course_id] ? '▼' : '▶'} {course.course_name} (Время: {course.course_time}, Цена: {course.course_price}₽)
-                                </div>
-                                {expanded[course.course_id] && (
-                                    <ul>
-                                        {course.groups.map(group => (
-                                            <li key={group.group_id} className="group">
-                                                {group.group_name} (Преподаватель: {group.group_teacher_id})
-                                                <button>Удалить группу</button>
+                                        <select value={newCourse.schemeId} onChange={(e) => setNewCourse({ ...newCourse, schemeId: e.target.value })}>
+                                            <option value="">Выберите схему</option>
+                                            {schemes.map(scheme => (
+                                                <option key={scheme.scheme_id} value={scheme.scheme_id}>{scheme.scheme_value}</option>
+                                            ))}
+                                        </select>
 
-                                                {/* Стрелочка для добавления студентов в группу */}
-                                                <div className="group-students-toggle" onClick={() => loadStudentsByGroup(group.group_name)}>
-                                                    {groupStudents[group.group_name] ? '▼' : '▶'} Показать студентов
+                                        <button onClick={handleAddCourse}>Добавить курс</button>
+                                    </div>
+
+                                    {/* Список курсов и групп */}
+                                    <ul className="tree">
+                                        {courses.map(course => (
+                                            <li key={course.course_id}>
+                                                <div className="course" onClick={() => toggleExpand(course.course_id)}>
+                                                    {expanded[course.course_id] ? '▼' : '▶'} {course.course_name}
                                                 </div>
-
-                                                {/* Всплывающее окно для выбора студентов */}
-                                                {showPopup === group.group_id && (
-                                                    <div className="student-popup">
-                                                        <div>
-                                                            <h3>Выберите студентов для добавления в группу</h3>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Поиск студента..."
-                                                                value={searchTerm}
-                                                                onChange={handleSearchChange}
-                                                            />
-                                                            <ul className="student-list">
-                                                                {filteredStudents.map(student => (
-                                                                    <li key={student.student_id} className="student-item">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={selectedStudents.has(student.student_id)}
-                                                                            onChange={() => toggleStudentSelection(student.student_id)}
-                                                                        />
-                                                                        {student.user_surname} {student.user_name} {student.user_patronymic} — {student.user_phone}
-                                                                    </li>
-                                                                ))}
-                                                            </ul>
-                                                            <button onClick={() => addStudentsToGroup(group.group_id)}>Добавить выбранных студентов</button>
-                                                            <button onClick={closeStudentPopup}>Закрыть</button>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {/* Отображение студентов внутри группы */}
-                                                {groupStudents[group.group_name] && (
+                                                {expanded[course.course_id] && (
                                                     <ul>
-                                                        {groupStudents[group.group_name].map(student => (
-                                                            <li key={student.student_id}>
-                                                                {student.full_name}
+                                                        {course.groups.map(group => (
+                                                            <li key={group.group_id} className="group">
+                                                                {group.group_name} (Преподаватель: {group.group_teacher_id})
+                                                                <button onClick={() => toggleChildrenExpand(group)}>
+                                                                    {expandedChildren[group.group_id] ? 'Скрыть детей' : 'Показать детей'}
+                                                                </button>
+                                                                {expandedChildren[group.group_id] && (
+                                                                    <ul>
+                                                                        {(childrenByGroup[group.group_id] || []).map(child => (
+                                                                            <li key={child.student_id} className="child">
+                                                                                {child.full_name}
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                )}
+                                                                <button onClick={() => openChildPopup(group.group_id)}>Добавить ребенка</button>
                                                             </li>
                                                         ))}
+                                                        <li>
+                                                            <input
+                                                                type="text" placeholder="Название группы"
+                                                                value={newGroup.name} onChange={(e) => setNewGroup({ ...newGroup, name: e.target.value })}
+                                                            />
+                                                            <select value={newGroup.teacherId} onChange={(e) => setNewGroup({ ...newGroup, teacherId: e.target.value })}>
+                                                                <option value="">Выберите преподавателя</option>
+                                                                {teachers.map(teacher => (
+                                                                    <option key={teacher.teacher_id} value={teacher.teacher_id}>
+                                                                        {teacher.user_surname} {teacher.user_name} {teacher.user_patronymic}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            <button onClick={() => handleAddGroup(course.course_id)}>Добавить группу</button>
+                                                        </li>
                                                     </ul>
                                                 )}
                                             </li>
                                         ))}
                                     </ul>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            );
-        }
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+                                    {/* Popup для добавления ребенка */}
+                                    {childPopup.visible && (
+                                        <div className="student-popup">
+                                            <div>
+                                                <h3>Добавить ребенка в группу</h3>
+                                                <select
+                                                    value={childPopup.selectedChild}
+                                                    onChange={(e) => setChildPopup({ ...childPopup, selectedChild: e.target.value })}
+                                                >
+                                                    <option value="">Выберите ребенка</option>
+                                                    {availableChildren.map(child => (
+                                                        <option key={child.student_id} value={child.student_id}>
+                                                            {child.user_surname} {child.user_name} {child.user_patronymic}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="number"
+                                                    placeholder="Скидка"
+                                                    value={childPopup.discount}
+                                                    onChange={(e) => setChildPopup({ ...childPopup, discount: e.target.value })}
+                                                />
+                                                <button onClick={handleAddChild}>Добавить</button>
+                                                <button onClick={closeChildPopup}>Закрыть</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+
+
+
+
+
+                                                                        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
